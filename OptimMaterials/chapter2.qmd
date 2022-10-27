@@ -12,12 +12,12 @@ $$ {#eq-multin}
 _Solution_
 
 $$
-\begin{align}
+\begin{aligned}
 \ell(\pi) &= \sum_{j=1}^R \sum_{k=1}^C n_{jk} \ln(\pi_{jk}) \\
 &= \sum_{j=1}^R \sum_{k=1}^C n_{jk} \ln(\pi_{j+} \cdot \pi_{+k}) \\
 &= \sum_{j=1}^R \sum_{k=1}^C n_{jk} \ln \pi_{j+} + n_{jk} \ln \pi_{+k} \\
 &= \sum_{j=1}^R n_{j+} \ln \pi_{j+} + \sum_{k=1}^C n_{+k} \ln \pi_{+k}
-\end{align}
+\end{aligned}
 $$ {#eq-Q1}
 
 __2. In a mixed model, optimization is carried out using the marginal likelihood (the likelihood with the random effects integrated out). Define the marginal likelihood for the one-way random effects ANOVA model.__
@@ -69,8 +69,8 @@ __3. Suppose you do a simple linear regression analysis using a $t_\nu$-distribu
 _Solution_
 
 $$
-\begin{align}
+\begin{aligned}
 L(\beta) &= \prod_{i=1}^n C\sqrt{\lambda} \Bigg(1 + \frac{\lambda (y_i-\beta_0-\beta_1x_i)^2}{\nu}  \Bigg)^{-\frac{\nu+1}{2}}, \\
 \ell(\beta) &= N \ln C +  \frac{N}{2} \ln \lambda - \sum^n_{i=1} \frac{\nu + 1}{2} \ln \Bigg(1 + \frac{\lambda(y_i - \beta_0 - \beta_1x_i)^2}{\nu}\Bigg)
-\end{align}
+\end{aligned}
 $$
