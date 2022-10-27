@@ -7,6 +7,7 @@ book:
   date: "27-10-2022"
   chapters:
     - index.qmd
+    - chapter1.qmd
     - chapter2.qmd
     - chapter3.qmd
     - references.qmd

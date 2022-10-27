@@ -2,7 +2,7 @@
 
 Chapter 2 is the first chapter that actually entails exercises. 
 
-## 2.7
+## Exercises (2.7 in the notes)
 
 __1. Consider the multinomial likelihood in @eq-multin for a model (for a two-way contingency table) assuming independence. Can you simplify the likelihood?__
 $$
@@ -30,36 +30,38 @@ with $\epsilon \sim \mathcal{N}(0, \sigma^2_\epsilon)$, with $a$ groups indexed 
 
 _Solution_
 
-So, the likelihood consists of two components. For the individuals within each group, we have:
+So, the likelihood consists of two components. For the individuals within each group, we have
+
 $$
 \prod^{n_j}_{i=1} \frac{1}{\sqrt{2\pi\sigma^2_{\epsilon}}} 
 \exp \Bigg(
 -\frac{(y_{ij} - \beta - \mu_j)^2}{2\sigma^2_{\epsilon}}
 \Bigg),
 $$
+
 whereas for the groups themselves, we have
+
 $$
 \prod^{a}_{j=1} \frac{1}{\sqrt{2\pi\sigma^2_{\mu}}} 
 \exp \Bigg(
 -\frac{\mu_j^2}{2\sigma^2_{\mu}}
 \Bigg).
 $$
+
 Combining these components, and integrating out the random effects, we obtain the marginal likelihood
 $$
 \prod^{a}_{j=1}
 \int
 \prod^{n_j}_{i=1} 
 \frac{1}{\sqrt{2\pi\sigma^2_{\epsilon}}}
-
 \exp \Bigg(
 -\frac{(y_{ij} - \beta - \mu_j)^2}{2\sigma^2_{\epsilon}}
 \Bigg)
-
 \frac{1}{\sqrt{2\pi\sigma^2_{\mu}}} 
 \exp \Bigg(
 -\frac{\mu_j^2}{2\sigma^2_{\mu}}
 \Bigg)
-d\mu_j ~ .
+d\mu_j.
 $$
 
 __3. Suppose you do a simple linear regression analysis using a $t_\nu$-distribution for the residuals (density: $f_\nu(y) = C \sqrt{\lambda} \Big(1 + \frac{\lambda(y-\mu)^2}{\nu}\Big)^{-\frac{\nu+1}{2}}$ where $\mu$ is the mean (for $\nu > 1$), $\lambda$ is a scale parameter and $C$ is a normalizing constraint that does not depend on $\mu$ or $\lambda$). Define the (log-)likelihood for $n$ observations $(y_i, x_i)$, such that $\mu_i = \beta_0 + \beta_1x_i$.__
