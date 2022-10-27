@@ -1,3 +1,129 @@
-# Chapter 3
+# Basic tools
 
+Chapter 3 introduces basic tools for optimization problems, such as Taylor Series Expansion, and introduces the exponential family. 
+
+## Exercises (3.7 in the book)
+
+__1. Consider $f(x) = \frac{e^x}{1 + e^x}$. Derive the third-order Taylor series expansion of this function at $x = 0$, and make a graph with the function and the third-order Taylor series expansion at $x = 0$.__
+
+_Solution_
+
+$$
+\begin{aligned}
+f(x) &= \frac{e^x}{1+e^x} \\
+f'(x) &= \frac{e^x(1+e^x)}{(1+e^x)^2} - \frac{e^{2x}}{(1+e^x)^2} = \frac{e^x}{(1+e^x)^2} \\
+f''(x) &= \frac{e^x(1+e^x)^2 - e^x 2(1 + e^x)e^x}{(1 + e^x)^4} \\
+&= \frac{e^x(1+e^x)^2 - 2e^{2x}}{(1+e^x)^3} \\
+&= \frac{e^x - e^{ 2x}}{(1+e^x)^3} \\
+f'''(x) &= \frac{(e^x-2e^{2x})(1+e^x)^3 - (e^x - e^{2x}) 3 (1+e^x)^2e^x}{(1+e^x)^6} \\
+&= \frac{e^x - 2e^{2x} + e^{2x} - 2e^{3x} - 3e^{2x} + 3e^{3x}}{(1+e^x)^4} \\
+&= \frac{e^x - 4e^{2x} + e^{3x}}{(1+e^x)^4},
+\end{aligned}
+$$
+using Taylor's theorem, we get
+$$
+\begin{aligned}
+f(x) & \approx \sum^n_{k=0} \frac{f^{(k)}(x_0)}{k!} (x - x_0)^k \\
+&= \frac{1}{2} + \frac{1}{4}x + 0 - \frac{1}{48}x^3.
+\end{aligned}
+$$
+
+```{r}
+library(ggplot2)
+fx <- function(x) exp(x) / (1 + exp(x))
+fx1 <- function(x) exp(x) / (1 + exp(x))^2
+fx2 <- function(x) (exp(x) - exp(2*x)) / (1 + exp(x))^3
+fx3 <- function(x) (exp(x) - 4*exp(2*x) + exp(3*x)) / (1 + exp(x))^4
+
+taylor <- function(x, root) {
+  fx(root) + fx1(root) * (x - root) + fx2(root) / 2 * (x - root)^2 + fx3(root) / 6 * (x - root)^3
+}
+
+ggplot() +
+  geom_function(fun = fx) +
+  geom_function(fun = taylor, args = list(root = 0), col = "orange") +
+  xlim(-3, 3) +
+  theme_minimal() +
+  labs(x = "X", y = expression(italic(f(X))),
+       title = "Third-order Taylor Series Expansion")
+```
+
+__2. Consider the function: $f(x) = e^{x_1}(4x_1^2 + 2x_2^2 + 4x_1x_2 + 2x_2 + 1)$. Make a contour plot of this function (let both axes run from -2 to 2) at function values $0.2, 0.4, 0.7, 1, 1.7, 1.75, 1.8, 2, 3, 4, 5, 6, 20$. Derive the second-order Taylor series at $\boldsymbol{x} = (0.5, -1)'$ and $\boldsymbol{x} = (-0.75, 1)'$.__
+
+_Solution_
+
+Contour plot
+
+```{r, cache=T}
+fx12 <- function(x1, x2) {
+  exp(x1) * (4*x1^2 + 2*x2^2 + 4*x1*x2 + 2*x2 + 1)
+}
+
+expand.grid(x1 = -200:200/100,
+            x2 = -200:200/100) |>
+  dplyr::mutate(z = fx12(x1, x2)) |>
+  ggplot(aes(x = x1, y = x2, z = z)) +
+  stat_contour_filled(breaks = c(0, 0.2, 0.4, 0.7, 1, 1.7, 1.75, 1.8, 2, 3, 4, 5, 6, 20, 100)) +
+  geom_point(aes(x = 0.5, y = -1), col = "orange", shape = "cross") +
+  geom_point(aes(x = -1.5, y = 1), col = "orange", shape = "cross") +
+  theme_minimal() +
+  labs(x = "X1", y = "X2",
+       title = "Contour plot")
+```
+The second-order Taylor expansion uses the first and second partial derivatives of the function $f(x)$.  
+$$
+\begin{aligned}
+f(x) &= e^{x1}(4e^2_1 + 2x^2_2 + 4x_1x_2 + 2x_2 + 1), \\
+\frac{\partial f}{\partial x_1} &= f(x) + e^{x_1}(8x_1 + 4x_2), \\
+\frac{\partial f}{\partial x_2} &= e^{x_1} (4x_2 + 4x_1 + 2), \\
+\frac{\partial^2 f}{\partial x_1^2} &= f(x) + 2e^{x1}(8x_1 + 4x_2) + 8e^{x_1}, \\
+\frac{\partial^2 f}{\partial x_2^2} &= 4e^{x_1}, \\
+\frac{\partial^2 f}{\partial x_1 \partial x_2} &= 4e^{x_1} + e^{x_1}(4x_2 + 4x_1 + 2).
+\end{aligned}
+$$
+
+Accordingly, the Gradient $\nabla f(x)$ is defined as
+$$
+\nabla f(x) = 
+\begin{pmatrix}
+f(x) + e^{x_1}(8x_1 + 4x_2) \\
+e^{x_1} (4x_2 + 4x_1 + 2)
+\end{pmatrix},
+$$
+and the Hessian $\nabla^2 f(x)$ is defined as
+$$
+\nabla^2 f(x) = 
+\begin{pmatrix}
+f(x) + 2e^{x1}(8x_1 + 4x_2) + 8e^{x_1} & 
+4e^{x_1} + e^{x_1}(4x_2 + 4x_1 + 2) \\
+4e^{x_1} + e^{x_1}(4x_2 + 4x_1 + 2) & 
+4e^{x_1}
+\end{pmatrix}.
+$$
+
+Moreover, the second-order Taylor series at $\boldsymbol{x} = (0.5, -1)'$ and $\boldsymbol{x} = (-0.75, 1)'$ is defined as
+$$
+\begin{aligned}
+\nabla f((0.5, -1)) &= 
+\begin{pmatrix} 0 \\ 0 \end{pmatrix} \\
+\nabla^2 f((0.5, -1)) &= 
+\begin{pmatrix}
+13.19 & 6.59 \\
+6.59 & 6.59
+\end{pmatrix},
+\end{aligned}
+$$
+and
+$$
+\begin{aligned}
+\nabla f((-1.5, 1)) &= 
+\begin{pmatrix} 0 \\ 0 \end{pmatrix} \\
+\nabla^2 f((-1.5, 1)) &= 
+\begin{pmatrix}
+0 & 0.89 \\
+0.89 & 0.89
+\end{pmatrix}.
+\end{aligned}
+$$
+As can be seen in the contour plot, the first point is a minimum, while the second point is a saddle point. 
 

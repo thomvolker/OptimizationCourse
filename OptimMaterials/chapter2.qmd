@@ -1,6 +1,6 @@
-# Chapter 2
+# Motivating Problems
 
-Chapter 2 is the first chapter that actually entails exercises. 
+Chapter 2 on motivating problems is the first chapter that actually entails exercises. 
 
 ## Exercises (2.7 in the notes)
 
