@@ -1,12 +1,12 @@
 # Basic tools
 
-Chapter 3 introduces basic tools for optimization problems, such as Taylor Series Expansion, and introduces the exponential family. 
+Chapter 3 introduces basic tools for optimization problems, such as Taylor Series Expansion, and introduces the exponential family.
 
 ## Exercises (3.7 in the book)
 
-__1. Consider $f(x) = \frac{e^x}{1 + e^x}$. Derive the third-order Taylor series expansion of this function at $x = 0$, and make a graph with the function and the third-order Taylor series expansion at $x = 0$.__
+**1. Consider** $f(x) = \frac{e^x}{1 + e^x}$. Derive the third-order Taylor series expansion of this function at $x = 0$, and make a graph with the function and the third-order Taylor series expansion at $x = 0$.
 
-_Solution_
+*Solution*
 
 $$
 \begin{aligned}
@@ -19,8 +19,8 @@ f'''(x) &= \frac{(e^x-2e^{2x})(1+e^x)^3 - (e^x - e^{2x}) 3 (1+e^x)^2e^x}{(1+e^x)
 &= \frac{e^x - 2e^{2x} + e^{2x} - 2e^{3x} - 3e^{2x} + 3e^{3x}}{(1+e^x)^4} \\
 &= \frac{e^x - 4e^{2x} + e^{3x}}{(1+e^x)^4},
 \end{aligned}
-$$
-using Taylor's theorem, we get
+$$ 
+using Taylor's theorem, we get 
 $$
 \begin{aligned}
 f(x) & \approx \sum^n_{k=0} \frac{f^{(k)}(x_0)}{k!} (x - x_0)^k \\
@@ -48,13 +48,14 @@ ggplot() +
        title = "Third-order Taylor Series Expansion")
 ```
 
-__2. Consider the function: $f(x) = e^{x_1}(4x_1^2 + 2x_2^2 + 4x_1x_2 + 2x_2 + 1)$. Make a contour plot of this function (let both axes run from -2 to 2) at function values $0.2, 0.4, 0.7, 1, 1.7, 1.75, 1.8, 2, 3, 4, 5, 6, 20$. Derive the second-order Taylor series at $\boldsymbol{x} = (0.5, -1)'$ and $\boldsymbol{x} = (-0.75, 1)'$.__
+**2. Consider the function:** $f(x) = e^{x_1}(4x_1^2 + 2x_2^2 + 4x_1x_2 + 2x_2 + 1)$. Make a contour plot of this function (let both axes run from -2 to 2) at function values $0.2, 0.4, 0.7, 1, 1.7, 1.75, 1.8, 2, 3, 4, 5, 6, 20$. Derive the second-order Taylor series at $\boldsymbol{x} = (0.5, -1)'$ and $\boldsymbol{x} = (-0.75, 1)'$.
 
-_Solution_
+*Solution*
 
 Contour plot
 
-```{r, cache=T}
+```{r}
+#| cache: true
 fx12 <- function(x1, x2) {
   exp(x1) * (4*x1^2 + 2*x2^2 + 4*x1*x2 + 2*x2 + 1)
 }
@@ -70,7 +71,8 @@ expand.grid(x1 = -200:200/100,
   labs(x = "X1", y = "X2",
        title = "Contour plot")
 ```
-The second-order Taylor expansion uses the first and second partial derivatives of the function $f(x)$.  
+
+The second-order Taylor expansion uses the first and second partial derivatives of the function $f(x)$.
 $$
 \begin{aligned}
 f(x) &= e^{x1}(4e^2_1 + 2x^2_2 + 4x_1x_2 + 2x_2 + 1), \\
@@ -82,15 +84,15 @@ f(x) &= e^{x1}(4e^2_1 + 2x^2_2 + 4x_1x_2 + 2x_2 + 1), \\
 \end{aligned}
 $$
 
-Accordingly, the Gradient $\nabla f(x)$ is defined as
+Accordingly, the Gradient $\nabla f(x)$ is defined as 
 $$
 \nabla f(x) = 
 \begin{pmatrix}
 f(x) + e^{x_1}(8x_1 + 4x_2) \\
 e^{x_1} (4x_2 + 4x_1 + 2)
 \end{pmatrix},
-$$
-and the Hessian $\nabla^2 f(x)$ is defined as
+$$ 
+and the Hessian $\nabla^2 f(x)$ is defined as 
 $$
 \nabla^2 f(x) = 
 \begin{pmatrix}
@@ -101,7 +103,7 @@ f(x) + 2e^{x1}(8x_1 + 4x_2) + 8e^{x_1} &
 \end{pmatrix}.
 $$
 
-Moreover, the second-order Taylor series at $\boldsymbol{x} = (0.5, -1)'$ and $\boldsymbol{x} = (-0.75, 1)'$ is defined as
+Moreover, the second-order Taylor series at $\boldsymbol{x} = (0.5, -1)'$ and $\boldsymbol{x} = (-0.75, 1)'$ is defined as 
 $$
 \begin{aligned}
 \nabla f((0.5, -1)) &= 
@@ -112,8 +114,8 @@ $$
 6.59 & 6.59
 \end{pmatrix},
 \end{aligned}
-$$
-and
+$$ 
+and 
 $$
 \begin{aligned}
 \nabla f((-1.5, 1)) &= 
@@ -124,6 +126,298 @@ $$
 0.89 & 0.89
 \end{pmatrix}.
 \end{aligned}
+$$ 
+As can be seen in the contour plot, the first point is a minimum, while the second point is a saddle point.
+
+__3. Consider the likelihood function__
 $$
-As can be seen in the contour plot, the first point is a minimum, while the second point is a saddle point. 
+L = \prod^N_{i=1} \frac{e^{(\alpha + \beta x_i)y_i}}{1 + e^{(\alpha + \beta x_i)}}.
+$$
+__derive the log-likelihood function, the gradient vector for the parameter vector $\boldsymbol{\theta} = (\alpha, \beta)$ and the Hessian matrix for the parameter vector $\boldsymbol{\theta}$.__
+
+_Solution_
+
+The log-likelihood is defined as
+$$
+\ell = \sum_{i=1}^N (\alpha + \beta x_i)y_i - \log(1 + e^{(\alpha + \beta x_i)}),
+$$
+differentiation with respect to $\alpha$ yields
+$$
+\frac{\partial \ell}{\partial \alpha} = 
+\sum_{i=1}^N y_i - \frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}} = 
+\sum_{i=1}^N y_i - \pi_i,
+$$
+differentiation with respect to $\beta$ yields
+$$
+\frac{\partial \ell}{\partial \beta} = 
+\sum_{i=1}^N y_i x_i - x_i \frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}} = 
+\sum_{i=1}^N x_i(y_i - \pi_i).
+$$
+Accordingly, the gradient is defined as
+$$
+\nabla \ell = 
+\begin{pmatrix}
+\sum_{i=1}^N y_i - \pi_i \\
+\sum_{i=1}^N x_i(y_i - \pi_i)
+\end{pmatrix}.
+$$
+The second partial derivatives are defined as
+$$
+\begin{aligned}
+\frac{\partial^2 \ell}{\partial \alpha^2} &= 
+\sum_{i=1}^N - \frac{e^{(\alpha + \beta x_i)}(1 + e^{(\alpha + \beta x_i)}) - e^{(\alpha + \beta x_i)}e^{(\alpha + \beta x_i)}}{(1 + e^{(\alpha + \beta x_i)})^2} \\
+&= - \sum_{i=1}^N \frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}} - 
+\frac{(e^{(\alpha + \beta x_i)})^2}{(1 + e^{(\alpha + \beta x_i)})^2} \\
+&= - \sum_{i=1}^N \pi_i(1 - \pi_i), \\
+\frac{\partial^2 \ell}{\partial \beta^2} &=
+\sum_{i=1}^N - x_i^2 \frac{e^{(\alpha + \beta x_i)}(1 + e^{(\alpha + \beta x_i)}) - e^{(\alpha + \beta x_i)}e^{(\alpha + \beta x_i)}}{(1 + e^{(\alpha + \beta x_i)})^2} \\
+&= - \sum_{i=1}^N x_i^2 \pi_i(1 - \pi_i), \\
+\frac{\partial^2 \ell}{\partial \alpha \partial \beta} &=
+\sum_{i=1}^N - x_i \frac{e^{(\alpha + \beta x_i)}(1 + e^{(\alpha + \beta x_i)}) - e^{(\alpha + \beta x_i)}e^{(\alpha + \beta x_i)}}{(1 + e^{(\alpha + \beta x_i)})^2} \\
+&= - \sum_{i=1}^N x_i \pi_i(1 - \pi_i). \\
+\end{aligned}
+$$
+Hence, the Hessian $\nabla^2 \ell$ is defined as 
+$$
+\nabla^2 \ell = 
+\begin{pmatrix}
+- \sum_{i=1}^N \pi_i(1 - \pi_i) & - \sum_{i=1}^N x_i \pi_i(1 - \pi_i) \\
+- \sum_{i=1}^N x_i \pi_i(1 - \pi_i) & - \sum_{i=1}^N x_i^2 \pi_i(1 - \pi_i)
+\end{pmatrix}.
+$$
+
+__4. Take the Weibull density__
+$$
+p(y) = \varphi \rho y^{\rho - 1}e^{-\varphi y^\rho}.
+$$
+__Derive the second-order Taylor series expansion of $p(y)$ about $y = 1$.__
+
+_Solution_
+
+$$
+\begin{aligned}
+\frac{\partial}{\partial y} 
+\Big[
+\varphi \rho y^{\rho - 1}e^{-\varphi y^\rho}
+\Big] &= \varphi \rho \Big((\rho - 1) y^{\rho - 2} e^{-\varphi y^\rho} - \varphi \rho y^{2\rho-2} e^{-\varphi y^\rho}\Big) \\
+&= \varphi \rho e^{-\varphi y^\rho} y^{\rho - 2}\Big(\rho - 1 - \varphi \rho y^\rho\Big), \\
+\frac{\partial^2}{\partial y^2} 
+\Big[
+\varphi \rho y^{\rho - 1}e^{-\varphi y^\rho}
+\Big] &= \varphi \rho 
+\Bigg[
+\frac{\partial}{\partial y} \rho \Big(e^{-\varphi y^\rho} y^{\rho-2}\Big) -
+\frac{\partial}{\partial y} \Big(e^{-\varphi y^\rho} y^{\rho-2}\Big) - 
+\frac{\partial}{\partial y} \varphi \rho\Big(e^{-\varphi y^\rho} y^{2\rho-2}\Big)
+\Bigg] \\
+&= \varphi \rho e^{-\varphi y^\rho} y^{\rho-3}
+\Big(
+(\rho-1)(\rho-2-\varphi \rho y^\rho) - \varphi \rho y^rho(2\rho - 2 - \varphi \rho y^rho)
+\Big)
+\end{aligned}
+$$
+
+```{r}
+#| warning: false
+fx <- function(phi, rho, y) {
+  e <- exp(-phi*y^rho)
+  phi * rho * y^{rho-1} * e
+}
+
+fx1 <- function(phi, rho, y) {
+  e <- exp(-phi*y^rho)
+  phi*rho*e*y^{rho-2}*((rho-1) - phi*rho*y^rho)
+}
+ 
+fx2 <- function(phi, rho, y) {
+  e <- exp(-phi*y^rho)
+  phi*rho*e*y^{rho-3} * ((rho-1)*(rho-2-phi*rho*y^rho) - phi*rho*y^rho*(2*rho-2-phi*rho*y^rho))
+}
+
+taylor <- function(phi, rho, y, root) {
+  fx(phi, rho, root) + fx1(phi, rho, root) * (y - root) + fx2(phi, rho, root)/2 * (y - root)^2
+}
+
+ggplot() +
+  geom_function(fun = fx, args = list(phi = 1, rho = 2)) +
+  geom_function(fun = taylor, 
+                args = list(phi = 1, rho = 2, root = 1),
+                col = "orange") + 
+  lims(x = c(0, 3), y = c(0, 1)) +
+  theme_minimal() +
+  labs(x = expression(italic(y)), y = expression(italic(f(y))),
+       title = "Second-order Taylor Series Expansion")
+```
+
+__5. Consider the Weibull-based likelihood function:__
+$$
+L = \prod^n_{i=1} \rho y_i^{\rho-1} e^{(\alpha + \beta x_i)} e^{-(y^\rho_i e^{(\alpha + \beta x_i)})},
+$$
+__with $y_i$ the outcome (time-to-event), $x_i$ is a continuous covariate, and $\alpha$ and $\beta$ are regression parameters. Derive the log-likelihood function for an i.i.d. sample of $n$ observations $(y_1, y_2, ..., y_n)$, the gradient of the log-likelihood function for the parameters $(\rho, \alpha, \beta)$ and the Hessian of the log-likelihood function for the parameter vector $(\rho, \alpha, \beta)$.__
+
+_Solution_
+
+The log-likelihood is defined as
+$$
+\ell = \sum^n_{i=1} \log(\rho) + (\rho-1) \log(y_i) + \alpha + \beta x_i - y_i^\rho e^{(\alpha + \beta x_i)}.
+$$
+The first-order partial derivatives with respect to $\rho, \alpha, \beta$ are given by
+$$
+\begin{aligned}
+\frac{\partial \ell}{\partial \rho} &= 
+\sum_{i=1}^n \rho^{-1} + \log(y_i) - y_i^\rho e^{(\alpha + \beta x_i)} \log(y_i), \\
+\frac{\partial \ell}{\partial \alpha} &= 
+\sum_{i=1}^n 1 - y_i^\rho e^{(\alpha + \beta x_i)}, \\
+\frac{\partial \ell}{\partial \alpha} &= 
+\sum_{i=1}^n x_i(1 - y_i^\rho e^{(\alpha + \beta x_i)}),
+\end{aligned}
+$$
+such that the gradient is defined as
+$$
+\nabla \ell = \begin{pmatrix}
+\sum_{i=1}^n \rho^{-1} + \log(y_i) - y_i^\rho e^{(\alpha + \beta x_i)} \log(y_i), \\
+\sum_{i=1}^n 1 - y_i^\rho e^{(\alpha + \beta x_i)}, \\
+\sum_{i=1}^n x_i(1 - y_i^\rho e^{(\alpha + \beta x_i)}),
+\end{pmatrix}.
+$$
+Additionally, the second-order partial derivatives are defined by
+$$
+\begin{aligned}
+\frac{\partial^2 \ell}{\partial \rho^2} &= 
+\sum_{i=1}^n -\rho^{-2} - y_i^\rho e^{(\alpha + \beta x_i)} (\log(y_i))^2, \\
+\frac{\partial^2 \ell}{\partial \alpha^2} &= 
+\sum_{i=1}^n - y_i^\rho e^{(\alpha + \beta x_i)}, \\
+\frac{\partial^2 \ell}{\partial \beta^2} &= 
+\sum_{i=1}^n - x_i^2y_i^\rho e^{(\alpha + \beta x_i)}, \\
+\frac{\partial^2 \ell}{\partial \rho \partial \alpha} &= 
+\sum_{i=1}^n - \log(y_i) y_i^\rho e^{(\alpha + \beta x_i)}, \\
+\frac{\partial^2 \ell}{\partial \rho \partial \beta} &= 
+\sum_{i=1}^n - x_i\log(y_i) y_i^\rho e^{(\alpha + \beta x_i)}, \\
+\frac{\partial^2 \ell}{\partial \alpha \partial \beta} &= 
+\sum_{i=1}^n - x_i y_i^\rho e^{(\alpha + \beta x_i)}, \\
+\end{aligned}
+$$
+such that the Hessian is defined as
+$$
+\nabla^2 \ell(\rho, \alpha, \beta) = 
+\begin{pmatrix}
+\sum_{i=1}^n -\rho^{-2} - y_i^\rho e^{(\alpha + \beta x_i)} (\log(y_i))^2 \\
+\sum_{i=1}^n - \log(y_i) y_i^\rho e^{(\alpha + \beta x_i)} &
+\sum_{i=1}^n - y_i^\rho e^{(\alpha + \beta x_i)} \\
+\sum_{i=1}^n - x_i\log(y_i) y_i^\rho e^{(\alpha + \beta x_i)} &
+\sum_{i=1}^n - x_i y_i^\rho e^{(\alpha + \beta x_i)} &
+\sum_{i=1}^n - x_i^2y_i^\rho e^{(\alpha + \beta x_i)} &
+\end{pmatrix}.
+$$
+
+__6. Consider a logistic regression__
+$$
+\text{logit}[P(Y_i=1 | x_i)] = \alpha + \beta x_i,
+$$
+__and a small set of data__
+
+| $i$ | $x_i$ | $y_i$ |
+|:---:|:-----:|:-----:|
+| 1 | 0.5 | 0 |
+| 2 | 1.0 | 0 |
+| 3 | 1.5 | 1 |
+| 4 | 2.0 | 0 |
+| 5 | 2.5 | 1 |
+
+__Construct the log-likelihood function and the gradient function.__
+
+_Solution_
+
+Constructing the logit function requires an expression for $P(Y_i = 1 | x_i)$, which is defined as follows. 
+$$
+\begin{aligned}
+\text{logit}[P(Y_i = 1 | x_i)] &= \alpha + \beta x_i, \\
+\log \Bigg(\frac{P(Y_i = 1 | x_i)}{1 - P(Y_i = 1 | x_i)} \Bigg) &= e^{(\alpha + \beta x_i)}, \\
+P(Y_i = 1 | x_i) &= e^{(\alpha + \beta x_i)} - e^{(\alpha + \beta x_i)}(P(Y_i=1|x_i)), \\
+1 &= \frac{e^{(\alpha + \beta x_i)}}{P(Y_i = 1|x_i)} - e^{(\alpha + \beta x_i)}, \\
+1 + e^{(\alpha + \beta x_i)} &= \frac{e^{(\alpha + \beta x_i)}}{P(Y_i = 1|x_i)}, \\
+P(Y_i = 1|x_i) &= \frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}}.
+\end{aligned}
+$$
+Plugging this into a binomial likelihood function yields
+$$
+\begin{aligned}
+L &= \prod^5_{i=1} \pi_i^{y_i} (1 - \pi_i)^{(1-y_i)}, \\
+\ell &= \sum_{i=1}^5 y_i \log \pi_i + (1 - y_i) \log(1-\pi_i) \\
+&= \sum^5_{i=1} y_i \log \Bigg(\frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}}\Bigg) + 
+\log \Bigg(\frac{1}{1 + e^{(\alpha + \beta x_i)}}\Bigg) - 
+y_i \log \Bigg(\frac{1}{1 + e^{(\alpha + \beta x_i)}}\Bigg) \\
+&= \sum^5_{i=1} y_i \log \Bigg(\frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}} \Big/ \frac{1}{1 + e^{(\alpha + \beta x_i)}} \Bigg) + \log \Bigg(\frac{1}{1 + e^{(\alpha + \beta x_i)}} \Bigg) \\
+&= \sum^n_{i=1} y_i (\alpha + \beta x_i) - \log(1 + e^{(\alpha + \beta x_i)}).
+\end{aligned}
+$$
+Accordingly, we can define the Gradient as
+$$
+\nabla \ell = 
+\begin{pmatrix}
+\sum^5_{i=1} y_i - \frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}} = 
+\sum^5_{i=1} y_i - \pi_i \\
+\sum^5_{i=1} y_i x_i - x_i\frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}} = 
+\sum^5_{i=1} x_i(y_i - \pi_i).
+\end{pmatrix}
+$$
+Filling in the values for $y$ yields
+$$
+\begin{aligned}
+\frac{\partial \ell}{\partial \alpha} &= 2 - \sum^5_{i=1} \pi_i, \\
+\frac{\partial \ell}{\partial \beta} &= 4 - \sum^5_{i=1} x_i\pi_i.
+\end{aligned}
+$$
+```{r}
+#| cache: true
+ell <- function(x, y, alpha, beta) {
+  sum(y*(alpha + beta*x) - log(1 + exp(alpha + beta*x)))
+}
+
+x <- c(0.5, 1, 1.5, 2, 2.5)
+y <- c(0, 0, 1, 0, 1)
+
+expand.grid(alpha = -5000:-2000/1000,
+            beta = 1000:4000/1000) |>
+  dplyr::mutate(l = purrr::map2_dbl(alpha, beta, ~ell(x, y, .x, .y))) |>
+  ggplot(aes(x = alpha, y = beta, z = l)) +
+  stat_contour_filled(bins = 100, show.legend = FALSE) +
+  theme_minimal() +
+  labs(x = expression(alpha),
+       y = expression(beta),
+       title = "Contour plot of logistic regression log-likelihood")
+  
+```
+
+__7. Consider $f(x_1, x_2, x_3) = (x_1 - 1)^4 + (x_2 - 3)^2 + 4(x_3 + 5)^4$. Find the Gradient and the Hessian and indicate what is special about the point $(1, 3, -5)$.__
+
+_Solution_
+
+The gradient is defined as
+$$
+\nabla f(x_1, x_2, x_3)= \begin{pmatrix}
+4(x_1-1)^3 \\
+2(x_2-3) \\
+16(x_3+5)^3 \\
+\end{pmatrix}.
+$$
+
+The Hessian is defined as 
+$$
+\nabla^2 f(x_1, x_2, x_3) = \begin{pmatrix} 
+12(x_1-1)^2 & 0 & 0 \\
+0 & 2 & 0 \\
+0 & 0 & 48(x_3+5)^2
+\end{pmatrix}.
+$$
+
+In the point $(1, 3, -5)$, the Gradient is $\nabla f(x_1, x_2, x_3) = (0,0,0)'$, and the Hessian equals 
+$$
+\nabla^2 f(x_1, x_2, x_3) = \begin{pmatrix} 
+0 & 0 & 0 \\
+0 & 2 & 0 \\
+0 & 0 & 0
+\end{pmatrix}.
+$$
+In the direction of $x_1$ and $x_3$, the function surface is almost flat. 
 

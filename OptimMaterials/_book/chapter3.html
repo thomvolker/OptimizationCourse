@@ -212,7 +212,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Chapter 3 introduces basic tools for optimization problems, such as Taylor Series Expansion, and introduces the exponential family.</p>
 <section id="exercises-3.7-in-the-book" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="exercises-3.7-in-the-book"><span class="header-section-number">3.1</span> Exercises (3.7 in the book)</h2>
-<p><strong>1. Consider <span class="math inline">\(f(x) = \frac{e^x}{1 + e^x}\)</span>. Derive the third-order Taylor series expansion of this function at <span class="math inline">\(x = 0\)</span>, and make a graph with the function and the third-order Taylor series expansion at <span class="math inline">\(x = 0\)</span>.</strong></p>
+<p><strong>1. Consider</strong> <span class="math inline">\(f(x) = \frac{e^x}{1 + e^x}\)</span>. Derive the third-order Taylor series expansion of this function at <span class="math inline">\(x = 0\)</span>, and make a graph with the function and the third-order Taylor series expansion at <span class="math inline">\(x = 0\)</span>.</p>
 <p><em>Solution</em></p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -255,10 +255,10 @@ f(x) &amp; \approx \sum^n_{k=0} \frac{f^{(k)}(x_0)}{k!} (x - x_0)^k \\
 <p><img src="chapter3_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p><strong>2. Consider the function: <span class="math inline">\(f(x) = e^{x_1}(4x_1^2 + 2x_2^2 + 4x_1x_2 + 2x_2 + 1)\)</span>. Make a contour plot of this function (let both axes run from -2 to 2) at function values <span class="math inline">\(0.2, 0.4, 0.7, 1, 1.7, 1.75, 1.8, 2, 3, 4, 5, 6, 20\)</span>. Derive the second-order Taylor series at <span class="math inline">\(\boldsymbol{x} = (0.5, -1)'\)</span> and <span class="math inline">\(\boldsymbol{x} = (-0.75, 1)'\)</span>.</strong></p>
+<p><strong>2. Consider the function:</strong> <span class="math inline">\(f(x) = e^{x_1}(4x_1^2 + 2x_2^2 + 4x_1x_2 + 2x_2 + 1)\)</span>. Make a contour plot of this function (let both axes run from -2 to 2) at function values <span class="math inline">\(0.2, 0.4, 0.7, 1, 1.7, 1.75, 1.8, 2, 3, 4, 5, 6, 20\)</span>. Derive the second-order Taylor series at <span class="math inline">\(\boldsymbol{x} = (0.5, -1)'\)</span> and <span class="math inline">\(\boldsymbol{x} = (-0.75, 1)'\)</span>.</p>
 <p><em>Solution</em></p>
 <p>Contour plot</p>
-<div class="cell" data-hash="chapter3_cache/html/unnamed-chunk-2_b9a3f2bc144f4f2fd743595c88bee1a8">
+<div class="cell" data-hash="chapter3_cache/html/unnamed-chunk-2_0da72324693d88be3d19ffbf431967c1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fx12 <span class="ot">&lt;-</span> <span class="cf">function</span>(x1, x2) {</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exp</span>(x1) <span class="sc">*</span> (<span class="dv">4</span><span class="sc">*</span>x1<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span>x2<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> <span class="dv">4</span><span class="sc">*</span>x1<span class="sc">*</span>x2 <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span>x2 <span class="sc">+</span> <span class="dv">1</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>}</span>
@@ -331,6 +331,310 @@ f(x) + 2e^{x1}(8x_1 + 4x_2) + 8e^{x_1} &amp;
 \end{aligned}
 \]</span></p>
 <p>As can be seen in the contour plot, the first point is a minimum, while the second point is a saddle point.</p>
+<p><strong>3. Consider the likelihood function</strong></p>
+<p><span class="math display">\[
+L = \prod^N_{i=1} \frac{e^{(\alpha + \beta x_i)y_i}}{1 + e^{(\alpha + \beta x_i)}}.
+\]</span></p>
+<p><strong>derive the log-likelihood function, the gradient vector for the parameter vector <span class="math inline">\(\boldsymbol{\theta} = (\alpha, \beta)\)</span> and the Hessian matrix for the parameter vector <span class="math inline">\(\boldsymbol{\theta}\)</span>.</strong></p>
+<p><em>Solution</em></p>
+<p>The log-likelihood is defined as</p>
+<p><span class="math display">\[
+\ell = \sum_{i=1}^N (\alpha + \beta x_i)y_i - \log(1 + e^{(\alpha + \beta x_i)}),
+\]</span></p>
+<p>differentiation with respect to <span class="math inline">\(\alpha\)</span> yields</p>
+<p><span class="math display">\[
+\frac{\partial \ell}{\partial \alpha} =
+\sum_{i=1}^N y_i - \frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}} =
+\sum_{i=1}^N y_i - \pi_i,
+\]</span></p>
+<p>differentiation with respect to <span class="math inline">\(\beta\)</span> yields</p>
+<p><span class="math display">\[
+\frac{\partial \ell}{\partial \beta} =
+\sum_{i=1}^N y_i x_i - x_i \frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}} =
+\sum_{i=1}^N x_i(y_i - \pi_i).
+\]</span></p>
+<p>Accordingly, the gradient is defined as</p>
+<p><span class="math display">\[
+\nabla \ell =
+\begin{pmatrix}
+\sum_{i=1}^N y_i - \pi_i \\
+\sum_{i=1}^N x_i(y_i - \pi_i)
+\end{pmatrix}.
+\]</span></p>
+<p>The second partial derivatives are defined as</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{\partial^2 \ell}{\partial \alpha^2} &amp;=
+\sum_{i=1}^N - \frac{e^{(\alpha + \beta x_i)}(1 + e^{(\alpha + \beta x_i)}) - e^{(\alpha + \beta x_i)}e^{(\alpha + \beta x_i)}}{(1 + e^{(\alpha + \beta x_i)})^2} \\
+&amp;= - \sum_{i=1}^N \frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}} -
+\frac{(e^{(\alpha + \beta x_i)})^2}{(1 + e^{(\alpha + \beta x_i)})^2} \\
+&amp;= - \sum_{i=1}^N \pi_i(1 - \pi_i), \\
+\frac{\partial^2 \ell}{\partial \beta^2} &amp;=
+\sum_{i=1}^N - x_i^2 \frac{e^{(\alpha + \beta x_i)}(1 + e^{(\alpha + \beta x_i)}) - e^{(\alpha + \beta x_i)}e^{(\alpha + \beta x_i)}}{(1 + e^{(\alpha + \beta x_i)})^2} \\
+&amp;= - \sum_{i=1}^N x_i^2 \pi_i(1 - \pi_i), \\
+\frac{\partial^2 \ell}{\partial \alpha \partial \beta} &amp;=
+\sum_{i=1}^N - x_i \frac{e^{(\alpha + \beta x_i)}(1 + e^{(\alpha + \beta x_i)}) - e^{(\alpha + \beta x_i)}e^{(\alpha + \beta x_i)}}{(1 + e^{(\alpha + \beta x_i)})^2} \\
+&amp;= - \sum_{i=1}^N x_i \pi_i(1 - \pi_i). \\
+\end{aligned}
+\]</span></p>
+<p>Hence, the Hessian <span class="math inline">\(\nabla^2 \ell\)</span> is defined as</p>
+<p><span class="math display">\[
+\nabla^2 \ell =
+\begin{pmatrix}
+- \sum_{i=1}^N \pi_i(1 - \pi_i) &amp; - \sum_{i=1}^N x_i \pi_i(1 - \pi_i) \\
+- \sum_{i=1}^N x_i \pi_i(1 - \pi_i) &amp; - \sum_{i=1}^N x_i^2 \pi_i(1 - \pi_i)
+\end{pmatrix}.
+\]</span></p>
+<p><strong>4. Take the Weibull density</strong></p>
+<p><span class="math display">\[
+p(y) = \varphi \rho y^{\rho - 1}e^{-\varphi y^\rho}.
+\]</span></p>
+<p><strong>Derive the second-order Taylor series expansion of <span class="math inline">\(p(y)\)</span> about <span class="math inline">\(y = 1\)</span>.</strong></p>
+<p><em>Solution</em></p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{\partial}{\partial y}
+\Big[
+\varphi \rho y^{\rho - 1}e^{-\varphi y^\rho}
+\Big] &amp;= \varphi \rho \Big((\rho - 1) y^{\rho - 2} e^{-\varphi y^\rho} - \varphi \rho y^{2\rho-2} e^{-\varphi y^\rho}\Big) \\
+&amp;= \varphi \rho e^{-\varphi y^\rho} y^{\rho - 2}\Big(\rho - 1 - \varphi \rho y^\rho\Big), \\
+\frac{\partial^2}{\partial y^2}
+\Big[
+\varphi \rho y^{\rho - 1}e^{-\varphi y^\rho}
+\Big] &amp;= \varphi \rho
+\Bigg[
+\frac{\partial}{\partial y} \rho \Big(e^{-\varphi y^\rho} y^{\rho-2}\Big) -
+\frac{\partial}{\partial y} \Big(e^{-\varphi y^\rho} y^{\rho-2}\Big) -
+\frac{\partial}{\partial y} \varphi \rho\Big(e^{-\varphi y^\rho} y^{2\rho-2}\Big)
+\Bigg] \\
+&amp;= \varphi \rho e^{-\varphi y^\rho} y^{\rho-3}
+\Big(
+(\rho-1)(\rho-2-\varphi \rho y^\rho) - \varphi \rho y^rho(2\rho - 2 - \varphi \rho y^rho)
+\Big)
+\end{aligned}
+\]</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fx <span class="ot">&lt;-</span> <span class="cf">function</span>(phi, rho, y) {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  e <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span>phi<span class="sc">*</span>y<span class="sc">^</span>rho)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  phi <span class="sc">*</span> rho <span class="sc">*</span> y<span class="sc">^</span>{rho<span class="dv">-1</span>} <span class="sc">*</span> e</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>fx1 <span class="ot">&lt;-</span> <span class="cf">function</span>(phi, rho, y) {</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  e <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span>phi<span class="sc">*</span>y<span class="sc">^</span>rho)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  phi<span class="sc">*</span>rho<span class="sc">*</span>e<span class="sc">*</span>y<span class="sc">^</span>{rho<span class="dv">-2</span>}<span class="sc">*</span>((rho<span class="dv">-1</span>) <span class="sc">-</span> phi<span class="sc">*</span>rho<span class="sc">*</span>y<span class="sc">^</span>rho)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>fx2 <span class="ot">&lt;-</span> <span class="cf">function</span>(phi, rho, y) {</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  e <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span>phi<span class="sc">*</span>y<span class="sc">^</span>rho)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  phi<span class="sc">*</span>rho<span class="sc">*</span>e<span class="sc">*</span>y<span class="sc">^</span>{rho<span class="dv">-3</span>} <span class="sc">*</span> ((rho<span class="dv">-1</span>)<span class="sc">*</span>(rho<span class="dv">-2</span><span class="sc">-</span>phi<span class="sc">*</span>rho<span class="sc">*</span>y<span class="sc">^</span>rho) <span class="sc">-</span> phi<span class="sc">*</span>rho<span class="sc">*</span>y<span class="sc">^</span>rho<span class="sc">*</span>(<span class="dv">2</span><span class="sc">*</span>rho<span class="dv">-2</span><span class="sc">-</span>phi<span class="sc">*</span>rho<span class="sc">*</span>y<span class="sc">^</span>rho))</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>taylor <span class="ot">&lt;-</span> <span class="cf">function</span>(phi, rho, y, root) {</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fx</span>(phi, rho, root) <span class="sc">+</span> <span class="fu">fx1</span>(phi, rho, root) <span class="sc">*</span> (y <span class="sc">-</span> root) <span class="sc">+</span> <span class="fu">fx2</span>(phi, rho, root)<span class="sc">/</span><span class="dv">2</span> <span class="sc">*</span> (y <span class="sc">-</span> root)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(<span class="at">fun =</span> fx, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">phi =</span> <span class="dv">1</span>, <span class="at">rho =</span> <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(<span class="at">fun =</span> taylor, </span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">phi =</span> <span class="dv">1</span>, <span class="at">rho =</span> <span class="dv">2</span>, <span class="at">root =</span> <span class="dv">1</span>),</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>                <span class="at">col =</span> <span class="st">"orange"</span>) <span class="sc">+</span> </span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lims</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">3</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(y)), <span class="at">y =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="fu">f</span>(y))),</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Second-order Taylor Series Expansion"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="chapter3_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>5. Consider the Weibull-based likelihood function:</strong></p>
+<p><span class="math display">\[
+L = \prod^n_{i=1} \rho y_i^{\rho-1} e^{(\alpha + \beta x_i)} e^{-(y^\rho_i e^{(\alpha + \beta x_i)})},
+\]</span></p>
+<p><strong>with <span class="math inline">\(y_i\)</span> the outcome (time-to-event), <span class="math inline">\(x_i\)</span> is a continuous covariate, and <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> are regression parameters. Derive the log-likelihood function for an i.i.d. sample of <span class="math inline">\(n\)</span> observations <span class="math inline">\((y_1, y_2, ..., y_n)\)</span>, the gradient of the log-likelihood function for the parameters <span class="math inline">\((\rho, \alpha, \beta)\)</span> and the Hessian of the log-likelihood function for the parameter vector <span class="math inline">\((\rho, \alpha, \beta)\)</span>.</strong></p>
+<p><em>Solution</em></p>
+<p>The log-likelihood is defined as</p>
+<p><span class="math display">\[
+\ell = \sum^n_{i=1} \log(\rho) + (\rho-1) \log(y_i) + \alpha + \beta x_i - y_i^\rho e^{(\alpha + \beta x_i)}.
+\]</span></p>
+<p>The first-order partial derivatives with respect to <span class="math inline">\(\rho, \alpha, \beta\)</span> are given by</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{\partial \ell}{\partial \rho} &amp;=
+\sum_{i=1}^n \rho^{-1} + \log(y_i) - y_i^\rho e^{(\alpha + \beta x_i)} \log(y_i), \\
+\frac{\partial \ell}{\partial \alpha} &amp;=
+\sum_{i=1}^n 1 - y_i^\rho e^{(\alpha + \beta x_i)}, \\
+\frac{\partial \ell}{\partial \alpha} &amp;=
+\sum_{i=1}^n x_i(1 - y_i^\rho e^{(\alpha + \beta x_i)}),
+\end{aligned}
+\]</span></p>
+<p>such that the gradient is defined as</p>
+<p><span class="math display">\[
+\nabla \ell = \begin{pmatrix}
+\sum_{i=1}^n \rho^{-1} + \log(y_i) - y_i^\rho e^{(\alpha + \beta x_i)} \log(y_i), \\
+\sum_{i=1}^n 1 - y_i^\rho e^{(\alpha + \beta x_i)}, \\
+\sum_{i=1}^n x_i(1 - y_i^\rho e^{(\alpha + \beta x_i)}),
+\end{pmatrix}.
+\]</span></p>
+<p>Additionally, the second-order partial derivatives are defined by</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{\partial^2 \ell}{\partial \rho^2} &amp;=
+\sum_{i=1}^n -\rho^{-2} - y_i^\rho e^{(\alpha + \beta x_i)} (\log(y_i))^2, \\
+\frac{\partial^2 \ell}{\partial \alpha^2} &amp;=
+\sum_{i=1}^n - y_i^\rho e^{(\alpha + \beta x_i)}, \\
+\frac{\partial^2 \ell}{\partial \beta^2} &amp;=
+\sum_{i=1}^n - x_i^2y_i^\rho e^{(\alpha + \beta x_i)}, \\
+\frac{\partial^2 \ell}{\partial \rho \partial \alpha} &amp;=
+\sum_{i=1}^n - \log(y_i) y_i^\rho e^{(\alpha + \beta x_i)}, \\
+\frac{\partial^2 \ell}{\partial \rho \partial \beta} &amp;=
+\sum_{i=1}^n - x_i\log(y_i) y_i^\rho e^{(\alpha + \beta x_i)}, \\
+\frac{\partial^2 \ell}{\partial \alpha \partial \beta} &amp;=
+\sum_{i=1}^n - x_i y_i^\rho e^{(\alpha + \beta x_i)}, \\
+\end{aligned}
+\]</span></p>
+<p>such that the Hessian is defined as</p>
+<p><span class="math display">\[
+\nabla^2 \ell(\rho, \alpha, \beta) =
+\begin{pmatrix}
+\sum_{i=1}^n -\rho^{-2} - y_i^\rho e^{(\alpha + \beta x_i)} (\log(y_i))^2 \\
+\sum_{i=1}^n - \log(y_i) y_i^\rho e^{(\alpha + \beta x_i)} &amp;
+\sum_{i=1}^n - y_i^\rho e^{(\alpha + \beta x_i)} \\
+\sum_{i=1}^n - x_i\log(y_i) y_i^\rho e^{(\alpha + \beta x_i)} &amp;
+\sum_{i=1}^n - x_i y_i^\rho e^{(\alpha + \beta x_i)} &amp;
+\sum_{i=1}^n - x_i^2y_i^\rho e^{(\alpha + \beta x_i)} &amp;
+\end{pmatrix}.
+\]</span></p>
+<p><strong>6. Consider a logistic regression</strong></p>
+<p><span class="math display">\[
+\text{logit}[P(Y_i=1 | x_i)] = \alpha + \beta x_i,
+\]</span></p>
+<p><strong>and a small set of data</strong></p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: center;"><span class="math inline">\(i\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(x_i\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(y_i\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0.5</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">1.5</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">2.0</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">2.5</td>
+<td style="text-align: center;">1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Construct the log-likelihood function and the gradient function.</strong></p>
+<p><em>Solution</em></p>
+<p>Constructing the logit function requires an expression for <span class="math inline">\(P(Y_i = 1 | x_i)\)</span>, which is defined as follows.</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{logit}[P(Y_i = 1 | x_i)] &amp;= \alpha + \beta x_i, \\
+\log \Bigg(\frac{P(Y_i = 1 | x_i)}{1 - P(Y_i = 1 | x_i)} \Bigg) &amp;= e^{(\alpha + \beta x_i)}, \\
+P(Y_i = 1 | x_i) &amp;= e^{(\alpha + \beta x_i)} - e^{(\alpha + \beta x_i)}(P(Y_i=1|x_i)), \\
+1 &amp;= \frac{e^{(\alpha + \beta x_i)}}{P(Y_i = 1|x_i)} - e^{(\alpha + \beta x_i)}, \\
+1 + e^{(\alpha + \beta x_i)} &amp;= \frac{e^{(\alpha + \beta x_i)}}{P(Y_i = 1|x_i)}, \\
+P(Y_i = 1|x_i) &amp;= \frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}}.
+\end{aligned}
+\]</span></p>
+<p>Plugging this into a binomial likelihood function yields</p>
+<p><span class="math display">\[
+\begin{aligned}
+L &amp;= \prod^5_{i=1} \pi_i^{y_i} (1 - \pi_i)^{(1-y_i)}, \\
+\ell &amp;= \sum_{i=1}^5 y_i \log \pi_i + (1 - y_i) \log(1-\pi_i) \\
+&amp;= \sum^5_{i=1} y_i \log \Bigg(\frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}}\Bigg) +
+\log \Bigg(\frac{1}{1 + e^{(\alpha + \beta x_i)}}\Bigg) -
+y_i \log \Bigg(\frac{1}{1 + e^{(\alpha + \beta x_i)}}\Bigg) \\
+&amp;= \sum^5_{i=1} y_i \log \Bigg(\frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}} \Big/ \frac{1}{1 + e^{(\alpha + \beta x_i)}} \Bigg) + \log \Bigg(\frac{1}{1 + e^{(\alpha + \beta x_i)}} \Bigg) \\
+&amp;= \sum^n_{i=1} y_i (\alpha + \beta x_i) - \log(1 + e^{(\alpha + \beta x_i)}).
+\end{aligned}
+\]</span></p>
+<p>Accordingly, we can define the Gradient as</p>
+<p><span class="math display">\[
+\nabla \ell =
+\begin{pmatrix}
+\sum^5_{i=1} y_i - \frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}} =
+\sum^5_{i=1} y_i - \pi_i \\
+\sum^5_{i=1} y_i x_i - x_i\frac{e^{(\alpha + \beta x_i)}}{1 + e^{(\alpha + \beta x_i)}} =
+\sum^5_{i=1} x_i(y_i - \pi_i).
+\end{pmatrix}
+\]</span></p>
+<p>Filling in the values for <span class="math inline">\(y\)</span> yields</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{\partial \ell}{\partial \alpha} &amp;= 2 - \sum^5_{i=1} \pi_i, \\
+\frac{\partial \ell}{\partial \beta} &amp;= 4 - \sum^5_{i=1} x_i\pi_i.
+\end{aligned}
+\]</span></p>
+<div class="cell" data-hash="chapter3_cache/html/unnamed-chunk-4_2c4cb5cc555c7dea8f780eb86771ed7d">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>ell <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, alpha, beta) {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(y<span class="sc">*</span>(alpha <span class="sc">+</span> beta<span class="sc">*</span>x) <span class="sc">-</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(alpha <span class="sc">+</span> beta<span class="sc">*</span>x)))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="fl">1.5</span>, <span class="dv">2</span>, <span class="fl">2.5</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">expand.grid</span>(<span class="at">alpha =</span> <span class="sc">-</span><span class="dv">5000</span><span class="sc">:-</span><span class="dv">2000</span><span class="sc">/</span><span class="dv">1000</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">beta =</span> <span class="dv">1000</span><span class="sc">:</span><span class="dv">4000</span><span class="sc">/</span><span class="dv">1000</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">l =</span> purrr<span class="sc">::</span><span class="fu">map2_dbl</span>(alpha, beta, <span class="sc">~</span><span class="fu">ell</span>(x, y, .x, .y))) <span class="sc">|&gt;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> alpha, <span class="at">y =</span> beta, <span class="at">z =</span> l)) <span class="sc">+</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_contour_filled</span>(<span class="at">bins =</span> <span class="dv">100</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(alpha),</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(beta),</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Contour plot of logistic regression log-likelihood"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="chapter3_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>7. Consider <span class="math inline">\(f(x_1, x_2, x_3) = (x_1 - 1)^4 + (x_2 - 3)^2 + 4(x_3 + 5)^4\)</span>. Find the Gradient and the Hessian and indicate what is special about the point <span class="math inline">\((1, 3, -5)\)</span>.</strong></p>
+<p><em>Solution</em></p>
+<p>The gradient is defined as</p>
+<p><span class="math display">\[
+\nabla f(x_1, x_2, x_3)= \begin{pmatrix}
+4(x_1-1)^3 \\
+2(x_2-3) \\
+16(x_3+5)^3 \\
+\end{pmatrix}.
+\]</span></p>
+<p>The Hessian is defined as</p>
+<p><span class="math display">\[
+\nabla^2 f(x_1, x_2, x_3) = \begin{pmatrix}
+12(x_1-1)^2 &amp; 0 &amp; 0 \\
+0 &amp; 2 &amp; 0 \\
+0 &amp; 0 &amp; 48(x_3+5)^2
+\end{pmatrix}.
+\]</span></p>
+<p>In the point <span class="math inline">\((1, 3, -5)\)</span>, the Gradient is <span class="math inline">\(\nabla f(x_1, x_2, x_3) = (0,0,0)'\)</span>, and the Hessian equals</p>
+<p><span class="math display">\[
+\nabla^2 f(x_1, x_2, x_3) = \begin{pmatrix}
+0 &amp; 0 &amp; 0 \\
+0 &amp; 2 &amp; 0 \\
+0 &amp; 0 &amp; 0
+\end{pmatrix}.
+\]</span></p>
+<p>In the direction of <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_3\)</span>, the function surface is almost flat.</p>
 
 
 </section>
