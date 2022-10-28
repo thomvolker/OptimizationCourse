@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Thom Volker">
-<meta name="dcterms.date" content="2024-04-10">
 
-<title>Optimization and Numerical Methods Solutions</title>
+<title>Optimization and Numerical Methods Solutions - 6&nbsp; Iteration-based Function Optimization</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -27,7 +25,8 @@ ul.task-list{list-style: none;}
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./chapter1.html" rel="next">
+<link href="./references.html" rel="next">
+<link href="./chapter5.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -57,6 +56,7 @@ ul.task-list{list-style: none;}
   }
 }</script>
 
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
@@ -66,7 +66,7 @@ ul.task-list{list-style: none;}
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
     <div class="container-fluid d-flex justify-content-between">
-      <h1 class="quarto-secondary-nav-title">Optimization and Numerical Methods Solutions</h1>
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Iteration-based Function Optimization</span></h1>
       <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
         <i class="bi bi-chevron-right"></i>
       </button>
@@ -91,7 +91,7 @@ ul.task-list{list-style: none;}
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">Preface</a>
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Preface</a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -121,7 +121,7 @@ ul.task-list{list-style: none;}
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./chapter6.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Iteration-based Function Optimization</span></a>
+  <a href="./chapter6.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Iteration-based Function Optimization</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -138,7 +138,7 @@ ul.task-list{list-style: none;}
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a></li>
+  <li><a href="#exercises-6.5-in-the-notes" id="toc-exercises-6.5-in-the-notes" class="nav-link active" data-scroll-target="#exercises-6.5-in-the-notes"> <span class="header-section-number">6.1</span> Exercises (6.5 in the notes)</a></li>
   </ul>
 </nav>
     </div>
@@ -147,35 +147,147 @@ ul.task-list{list-style: none;}
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title d-none d-lg-block">Optimization and Numerical Methods Solutions</h1>
+<h1 class="title d-none d-lg-block"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Iteration-based Function Optimization</span></h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Thom Volker </p>
-          </div>
-  </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">April 10, 2024</p>
-    </div>
-  </div>
     
   </div>
   
 
 </header>
 
-<section id="preface" class="level1 unnumbered">
-<h1 class="unnumbered">Preface</h1>
-<p>This project has two purposes. First, it is an attempt to organize my solutions to the course Optimization and Numerical Methods in a structured way. Second, it provides a justification to try and learn Quarto.</p>
+<p>Chapter 2 on motivating problems is the first chapter that actually entails exercises.</p>
+<section id="exercises-6.5-in-the-notes" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="exercises-6.5-in-the-notes"><span class="header-section-number">6.1</span> Exercises (6.5 in the notes)</h2>
+<p><strong>1. Suppose for every individual in a small pre-clinical study, it has been recorded how many epileptic seizures are observed (outcome <span class="math inline">\(y\)</span>) and whether the individual is receiving a standard treatment (covariate <span class="math inline">\(x=0\)</span>) or experimental medication (covariate <span class="math inline">\(x=1\)</span>). The data are:</strong></p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Subject <span class="math inline">\(i\)</span></th>
+<th>Treatment <span class="math inline">\(x\)</span></th>
+<th># Seizures <span class="math inline">\(y\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>1</td>
+<td>12</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>1</td>
+<td>15</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>1</td>
+<td>17</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>0</td>
+<td>8</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>0</td>
+<td>11</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>0</td>
+<td>5</td>
+</tr>
+</tbody>
+</table>
+<p><strong>A Poisson regression model is put forward for these data, with linear predictor <span class="math inline">\(\theta_i = \beta_0 + \beta_1 x_i\)</span>. Starting from <span class="math inline">\(\boldsymbol{\beta}^{(0)} = (0,0)'\)</span>, do the following: Derive the likelihood equations. Can they be solved analytically in this case? Perform the first five steps of the Newton-Raphson algorithm to find the maximum of the likelihood. Put your results in a table with as columns: Iteration number, current point, and log-likelihood value. Do the same for Fisher-scoring.</strong></p>
+<p><em>Solution</em></p>
+<p>The Poisson model yields</p>
+<p><span class="math display">\[
+Y \sim \text{Poisson}(\lambda),
+~ \text{with} ~
+f(y|\theta, \phi) = \frac{e^{-\lambda}\lambda^y}{y!},
+\]</span></p>
+<p>and thus the likelihood <span class="math inline">\(L\)</span> and log-likelihood <span class="math inline">\(\ell\)</span> are defined as</p>
+<p><span class="math display">\[
+\begin{aligned}
+L &amp;= \prod^6_{i=1} \frac{e^{-\lambda}\lambda^{y_i}}{y_i!} = \frac{e^{-e^{(\beta_0 + \beta_1 x_i)}} e^{(\beta_0 \beta_1 x_i)y_i}}{y_i!} \\
+\ell &amp;= \sum^6_{i=1} y_i \log \lambda - \lambda - \log (y_i!) \\
+&amp;= \sum^6_{i=1} y_i(\beta_0 + \beta_1 x_i) - e^{(\beta_0 + \beta_1 x_i)} - \log (y_i!).
+\end{aligned}
+\]</span></p>
+<p>Accordingly, the first-order partial derivatives are defined as</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{\partial \ell}{\partial \beta_0} &amp;=
+\sum^6_{i=1} y_i - e^{(\beta_0 - \beta_1 x_i)}, \\
+\frac{\partial \ell}{\partial \beta_1} &amp;=
+\sum^6_{i=1} x_i y_i - x_i e^{(\beta_0 - \beta_1 x_i)},
+\end{aligned}
+\]</span></p>
+<p>and hence the Gradient (i.e., Score equation) can be written as</p>
+<p><span class="math display">\[
+\nabla \ell(\beta_0, \beta_1) = S(\theta) = \begin{pmatrix}
+\sum^6_{i=1} y_i - e^{(\beta_0 - \beta_1 x_i)}, \\
+\sum^6_{i=1} x_i (y_i - e^{(\beta_0 - \beta_1 x_i)}).
+\end{pmatrix}
+\]</span></p>
+<p>Additionally, the second-order partial derivates are defined as</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{\partial^2 \ell}{\partial \beta_0^2} &amp;=
+\sum^6_{i=1} - e^{(\beta_0 - \beta_1 x_i)}, \\
+\frac{\partial^2 \ell}{\partial \beta_1^2} &amp;=
+\sum^6_{i=1} - x_i^2 e^{(\beta_0 - \beta_1 x_i)}, \\
+\frac{\partial^2 \ell}{\partial \beta_0 \partial \beta_1} &amp;=
+\sum^6_{i=1} - x_i e^{(\beta_0 - \beta_1 x_i)}, \\
+\end{aligned}
+\]</span></p>
+<p>such that the Hessian <span class="math inline">\(\nabla^2 \ell(\beta_0, \beta_1)\)</span> can be written as</p>
+<p><span class="math display">\[
+\nabla^2 \ell(\beta_0, \beta_1) =
+\begin{pmatrix}
+\sum^6_{i=1} - e^{(\beta_0 - \beta_1 x_i)} &amp; \\
+\sum^6_{i=1} - x_i e^{(\beta_0 - \beta_1 x_i)} &amp;
+\sum^6_{i=1} - x_i^2 e^{(\beta_0 - \beta_1 x_i)}
+\end{pmatrix}.
+\]</span></p>
+<p>Setting the first-order partial derivatives to zero and filling in the data yields</p>
+<p><span class="math display">\[
+S(\theta) = \begin{pmatrix}
+68 - 3e^{(\beta_0 + \beta_1)} - 3e^{(\beta_0)} \\
+44 - 3e^{(\beta_0 + \beta_1)}
+\end{pmatrix} = \begin{pmatrix} 0 \\ 0 \end{pmatrix}.
+\]</span></p>
+<p>Hence, we have</p>
+<p><span class="math display">\[
+\begin{aligned}
+44 - 3e^{(\beta_0 + \beta_1)} &amp;= 0 \\
+3e^{(\beta_0 + \beta_1)} &amp;= 44,
+\end{aligned}
+\]</span></p>
+<p>and thus</p>
+<p><span class="math display">\[
+\begin{aligned}
+68 - 3e^{(\beta_0)} &amp;= 44 \\
+3e^{(\beta_0)} &amp;= 24 \\
+e^{(\beta_0)} &amp;= 8 \\
+\beta_0 &amp;= \log 8 \approx 2.0794.
+\end{aligned}
+\]</span></p>
+<p>Filling this into the previous equation yields</p>
+<p><span class="math display">\[
+\begin{aligned}
+3e^{(\log 8 + \beta_1)} &amp;= 44 \\
+\log 44 - \log 3 - \log 8 &amp;= \beta_1 \approx 0.6061
+\end{aligned}
+\]</span></p>
 
 
 </section>
@@ -280,10 +392,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="./chapter5.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Chapter 5</span></span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./chapter1.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Chapter 1</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./references.html" class="pagination-link">
+        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

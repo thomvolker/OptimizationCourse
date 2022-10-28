@@ -1,15 +1,15 @@
 # Motivating Problems
 
-Chapter 2 on motivating problems is the first chapter that actually entails exercises. 
+Chapter 2 on motivating problems is the first chapter that actually entails exercises.
 
 ## Exercises (2.7 in the notes)
 
-__1. Consider the multinomial likelihood in @eq-multin for a model (for a two-way contingency table) assuming independence. Can you simplify the likelihood?__
+**1. Consider the multinomial likelihood in @eq-multin for a model (for a two-way contingency table) assuming independence. Can you simplify the likelihood?** 
 $$
 \sum_{j=1}^R \sum_{k=1}^C n_{jk} \ln(\pi_{jk})~~~~~~~~~~~~~~~~ \sum_{j=1}^R \sum_{k=1}^C \pi_{jk}=1
 $$ {#eq-multin}
 
-_Solution_
+*Solution*
 
 $$
 \begin{aligned}
@@ -20,15 +20,15 @@ $$
 \end{aligned}
 $$ {#eq-Q1}
 
-__2. In a mixed model, optimization is carried out using the marginal likelihood (the likelihood with the random effects integrated out). Define the marginal likelihood for the one-way random effects ANOVA model.__
+**2. In a mixed model, optimization is carried out using the marginal likelihood (the likelihood with the random effects integrated out). Define the marginal likelihood for the one-way random effects ANOVA model.**
 
 One-way random effects ANOVA with group-specific effects $\mu_j \sim \mathcal{N}(0, \sigma^2_{\mu})$, and 
 $$
 y_{ij} = \beta + \mu_j + \epsilon_{ij},
-$$
-with $\epsilon \sim \mathcal{N}(0, \sigma^2_\epsilon)$, with $a$ groups indexed $j$, and $n_j$ individuals in every group. 
+$$ 
+with $\epsilon \sim \mathcal{N}(0, \sigma^2_\epsilon)$, with $a$ groups indexed $j$, and $n_j$ individuals in every group.
 
-_Solution_
+*Solution*
 
 So, the likelihood consists of two components. For the individuals within each group, we have
 
@@ -48,7 +48,7 @@ $$
 \Bigg).
 $$
 
-Combining these components, and integrating out the random effects, we obtain the marginal likelihood
+Combining these components, and integrating out the random effects, we obtain the marginal likelihood 
 $$
 \prod^{a}_{j=1}
 \int
@@ -66,7 +66,7 @@ $$
 
 __3. Suppose you do a simple linear regression analysis using a $t_\nu$-distribution for the residuals (density: $f_\nu(y) = C \sqrt{\lambda} \Big(1 + \frac{\lambda(y-\mu)^2}{\nu}\Big)^{-\frac{\nu+1}{2}}$ where $\mu$ is the mean (for $\nu > 1$), $\lambda$ is a scale parameter and $C$ is a normalizing constraint that does not depend on $\mu$ or $\lambda$). Define the (log-)likelihood for $n$ observations $(y_i, x_i)$, such that $\mu_i = \beta_0 + \beta_1x_i$.__
 
-_Solution_
+*Solution*
 
 $$
 \begin{aligned}

@@ -1,0 +1,101 @@
+# Iteration-based Function Optimization
+
+Chapter 2 on motivating problems is the first chapter that actually entails exercises.
+
+## Exercises (6.5 in the notes)
+
+__1. Suppose for every individual in a small pre-clinical study, it has been recorded how many epileptic seizures are observed (outcome $y$) and whether the individual is receiving a standard treatment (covariate $x=0$) or experimental medication (covariate $x=1$). The data are:__
+
+| Subject $i$ | Treatment $x$ | # Seizures $y$ |
+|---|---|----|
+| 1 | 1 | 12 |
+| 2 | 1 | 15 |
+| 3 | 1 | 17 |
+| 4 | 0 | 8  | 
+| 5 | 0 | 11 |
+| 6 | 0 | 5  |
+
+__A Poisson regression model is put forward for these data, with linear predictor $\theta_i = \beta_0 + \beta_1 x_i$. Starting from $\boldsymbol{\beta}^{(0)} = (0,0)'$, do the following: Derive the likelihood equations. Can they be solved analytically in this case? Perform the first five steps of the Newton-Raphson algorithm to find the maximum of the likelihood. Put your results in a table with as columns: Iteration number, current point, and log-likelihood value. Do the same for Fisher-scoring.__
+
+_Solution_
+
+The Poisson model yields 
+$$
+Y \sim \text{Poisson}(\lambda), 
+~ \text{with} ~ 
+f(y|\theta, \phi) = \frac{e^{-\lambda}\lambda^y}{y!},
+$$
+and thus the likelihood $L$ and log-likelihood $\ell$ are defined as
+$$
+\begin{aligned}
+L &= \prod^6_{i=1} \frac{e^{-\lambda}\lambda^{y_i}}{y_i!} = \frac{e^{-e^{(\beta_0 + \beta_1 x_i)}} e^{(\beta_0 \beta_1 x_i)y_i}}{y_i!} \\
+\ell &= \sum^6_{i=1} y_i \log \lambda - \lambda - \log (y_i!) \\
+&= \sum^6_{i=1} y_i(\beta_0 + \beta_1 x_i) - e^{(\beta_0 + \beta_1 x_i)} - \log (y_i!). 
+\end{aligned}
+$$
+Accordingly, the first-order partial derivatives are defined as
+$$
+\begin{aligned}
+\frac{\partial \ell}{\partial \beta_0} &=
+\sum^6_{i=1} y_i - e^{(\beta_0 - \beta_1 x_i)}, \\
+\frac{\partial \ell}{\partial \beta_1} &=
+\sum^6_{i=1} x_i y_i - x_i e^{(\beta_0 - \beta_1 x_i)},
+\end{aligned}
+$$
+and hence the Gradient (i.e., Score equation) can be written as
+$$
+\nabla \ell(\beta_0, \beta_1) = S(\theta) = \begin{pmatrix}
+\sum^6_{i=1} y_i - e^{(\beta_0 - \beta_1 x_i)}, \\
+\sum^6_{i=1} x_i (y_i - e^{(\beta_0 - \beta_1 x_i)}).
+\end{pmatrix}
+$$
+Additionally, the second-order partial derivates are defined as
+$$
+\begin{aligned}
+\frac{\partial^2 \ell}{\partial \beta_0^2} &=
+\sum^6_{i=1} - e^{(\beta_0 - \beta_1 x_i)}, \\
+\frac{\partial^2 \ell}{\partial \beta_1^2} &=
+\sum^6_{i=1} - x_i^2 e^{(\beta_0 - \beta_1 x_i)}, \\
+\frac{\partial^2 \ell}{\partial \beta_0 \partial \beta_1} &=
+\sum^6_{i=1} - x_i e^{(\beta_0 - \beta_1 x_i)}, \\
+\end{aligned}
+$$
+such that the Hessian $\nabla^2 \ell(\beta_0, \beta_1)$ can be written as
+$$
+\nabla^2 \ell(\beta_0, \beta_1) =
+\begin{pmatrix}
+\sum^6_{i=1} - e^{(\beta_0 - \beta_1 x_i)} & \\
+\sum^6_{i=1} - x_i e^{(\beta_0 - \beta_1 x_i)} &
+\sum^6_{i=1} - x_i^2 e^{(\beta_0 - \beta_1 x_i)}
+\end{pmatrix}.
+$$
+Setting the first-order partial derivatives to zero and filling in the data yields
+$$
+S(\theta) = \begin{pmatrix}
+68 - 3e^{(\beta_0 + \beta_1)} - 3e^{(\beta_0)} \\
+44 - 3e^{(\beta_0 + \beta_1)}
+\end{pmatrix} = \begin{pmatrix} 0 \\ 0 \end{pmatrix}.
+$$
+Hence, we have
+$$
+\begin{aligned}
+44 - 3e^{(\beta_0 + \beta_1)} &= 0 \\
+3e^{(\beta_0 + \beta_1)} &= 44,
+\end{aligned}
+$$
+and thus
+$$
+\begin{aligned}
+68 - 3e^{(\beta_0)} &= 44 \\
+3e^{(\beta_0)} &= 24 \\
+e^{(\beta_0)} &= 8 \\
+\beta_0 &= \log 8 \approx `r round(log(8), 4)`.
+\end{aligned}
+$$
+Filling this into the previous equation yields
+$$
+\begin{aligned}
+3e^{(\log 8 + \beta_1)} &= 44 \\
+\log 44 - \log 3 - \log 8 &= \beta_1 \approx `r round(log(44) - log(3) - log(8), 4)`
+\end{aligned}
+$$
