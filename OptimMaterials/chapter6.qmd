@@ -96,6 +96,295 @@ Filling this into the previous equation yields
 $$
 \begin{aligned}
 3e^{(\log 8 + \beta_1)} &= 44 \\
-\log 44 - \log 3 - \log 8 &= \beta_1 \approx `r round(log(44) - log(3) - log(8), 4)`
+\log 44 - \log 3 - \log 8 &= \beta_1 \approx `r round(log(44) - log(3) - log(8), 4)`.
 \end{aligned}
 $$
+
+Newton-Raphson method (which is, in this case, exactly equivalent to the Fischer scoring method).
+
+```{r}
+NR <- function(x, y, start, n.iter) {
+  
+  score <- function(x, y, beta) {
+    c(beta0 = sum(y - exp(beta[1] + beta[2]*x)),
+      beta1 = sum(x * (y - exp(beta[1] + beta[2]*x))))
+  }
+  
+  hess <- function(x, y, beta) {
+    matrix(c(-sum(exp(beta[1] + beta[2]*x)),
+             -sum(x*exp(beta[1] + beta[2]*x)),
+             -sum(x*exp(beta[1] + beta[2]*x)),
+             -sum(x^2 * exp(beta[1] + beta[2]*x))),
+           2, 2, dimnames = list(c("beta0", "beta1"),
+                                 c("beta0", "beta1")))
+  }
+
+  out <- matrix(0, nrow = n.iter + 1, ncol = length(start))
+  out[1, ] <- b <- start
+  
+  Con <- sapply(y, function(x) sum(log(1:x))) |> sum()
+  
+  logL <- numeric(n.iter+1)
+  logL[1] <- sum(y - (start[1] + start[2] * x) - 
+                   exp(start[1] + start[2] * x) - 
+                   Con)
+  
+  for (i in (1:n.iter)+1) {
+    b <- b - solve(hess(x, y, b)) %*% score(x, y, b)
+    out[i, ] <- b
+    logL[i] <- sum(y - (b[1] + b[2] * x) - exp(b[1] + b[2] * x) - Con)
+  }
+  data.frame(iter = 0:n.iter,
+             out,
+             logL = logL)
+}
+
+x <- c(1, 1, 1, 0, 0, 0)
+y <- c(12, 15, 17, 8, 11, 5)
+
+NR(x, y, c(0,0), 20) |>
+  knitr::kable() |>
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+__2. Assume the function__
+$$
+f(x_1, x_2) = 8x_1 + 12x_2 + x_1^2 - 2x_2^2.
+$$
+__Sketch the contour lines of $f(x_1, x_2)$, and find the stationary point of $f(x_1, x_2)$. Does this point correspond to a minimum, a maximum, or something else?__
+
+_Solution_
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(purrr)
+
+fx1x2 <- function(x1, x2) 8*x1 + 12*x2 + x1^2 - 2*x2^2
+
+expand.grid(x1 = -300:200/10,
+            x2 = -200:300/10) |>
+  mutate(f = map2_dbl(x1, x2, fx1x2)) |>
+  ggplot(aes(x = x1, y = x2, z = f)) +
+  stat_contour_filled(bins = 30, show.legend = FALSE) +
+  theme_minimal() +
+  labs(x = expression(italic(X[1])),
+       y = expression(italic(X[2])),
+       title = "Contour plot")
+```
+
+The first- and second-order partial derivatives of $f(x_1, x_2)$ are given by
+$$
+\begin{aligned}
+f(x1, x2) &= 8x_1 + 12x_2 + x_1^2 - 2x_2^2, \\
+\frac{\partial f}{\partial x_1} &= 8 + 2x_1, \\
+\frac{\partial f}{\partial x_2} &= 12 - 4x_2, \\
+\frac{\partial^2 f}{\partial x_1^2} &= 2, \\
+\frac{\partial^2 f}{\partial x_2^2} &= -4, \\
+\frac{\partial^2 f}{\partial x_1 \partial x_2} &= 0. \\
+\end{aligned}
+$$
+The stationary point of $f(x_1, x_2)$ is $f(-4, 3)$, which is a saddle point. 
+
+__3. Consider the function__
+$$
+f(x_1, x_2) = 100(x_2 - x_1^2)^2 + (1 - x_1)^2.
+$$
+__Show that (1, 1)' is a local minimizer of this function. Also, starting from the point $\boldsymbol{x}^{(0)}=(0,0)'$, perform the first five steps of the steepest descent and the Newton Raphson algorithm to minimize the function. Put your results in a table with as columns: iteration number, current point, function value and gradient.__
+
+_Solution_
+
+```{r}
+fx1x2 <- function(x1, x2) 100*(x2 - x1^2)^2 + (1 - x1)^2
+
+expand.grid(x1 = -100:200/100,
+            x2 = -100:200/100) |>
+  mutate(f = map2_dbl(x1, x2, fx1x2)) |>
+  ggplot(aes(x = x1, y = x2, z = f)) +
+  stat_contour_filled(bins = 50, show.legend = FALSE) +
+  theme_minimal() +
+  labs(x = expression(italic(X[1])),
+       y = expression(italic(X[2])),
+       title = "Contour plot")
+```
+
+Showing that the point $(1,1)'$ is a local minimizer can be done by plugging the $(1,1)'$ into the Gradient, and checking whether the Gradient equals zero,
+$$
+\begin{aligned}
+f(x_1, x_2) &= 100(x_2 - x_1^2)^2 + (1 - x_1)^2, \\
+\nabla f(x_1, x_2) &= \begin{pmatrix} 
+-400x_1(x_2 - x_1^2) - 2(1 - x_1) \\
+200(x_2 - x_1^2) \end{pmatrix}, \\
+\nabla f(1,1) &= \begin{pmatrix}
+-400(1 - 1) - 2(1 - 1) \\
+200(1 - 1) \end{pmatrix} =
+\begin{pmatrix} 0 \\ 0 \end{pmatrix},
+\end{aligned}
+$$
+which shows that $(1,1)'$ is a local minimizer. Moreover, the Hessian matrix is defined by
+$$
+\nabla^2 f(x_1, x_2) = \begin{pmatrix}
+1200x_1^2 - 400x_2 + 2 & -400x_1 \\
+-400x_1 & 200 \end{pmatrix}
+$$
+
+```{r}
+f <- function(x1, x2) 100*(x2 - x1^2)^2 + (1 - x1)^2
+
+score <- function(x1, x2) {
+  c(400*x1^3 - 400*x1*x2 + 2*x1 - 2,
+    200*x2 - 200*x1^2)
+}
+  
+hess <- function(x1, x2) {
+  matrix(c(1200*x1^2 - 400*x2 + 2, -400*x1, -400*x1, 200),
+         2, 2)
+}
+
+NR <- function(start, n.iter, alpha, rho) {
+  
+  b <- start
+  grad <- matrix(0, n.iter + 1, 2)
+  grad[1, ] <- score(b[1], b[2])
+  
+  out <- matrix(0, n.iter + 1, 2)
+  out[1, ] <- b
+  
+  for (i in 1:n.iter + 1) {
+    
+    fold <- f(out[i-1,1], out[i-1,2])
+    b <- out[i - 1, ]
+    
+    out[i, ] <- b - solve(hess(b[1], b[2])) %*% score(b[1], b[2])
+    grad[i, ] <- c(score(b[1], b[2]))
+
+    fnew <- f(out[i,1], out[i,2])
+    a <- alpha
+    while (fnew>fold){
+      a <- a*rho
+      out[i,] <- out[i-1,] - a * solve(hess(b[1], b[2])) %*% score(b[1], b[2])
+      grad[i, ] <- c(score(out[i,1], out[i,2]))
+      fnew <- f(out[i,1], out[i,2])
+    }
+  }
+  data.frame(iter = 0:n.iter,
+             out = out,
+             f_val = 100 * (out[,2] - out[,1]^2)^2 + (1 - out[,1])^2,
+             gradient = grad)
+}
+NR(c(0,0), 15, 1, 0.8) |>
+  knitr::kable() |>
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+__4. Suppose for an individual during consecutive nights, it is recorded how loudly he snores (covariate $x$) and whether he wakes up or not (the outcome $Y$). Consider the following hypothetical data are collected: $\boldsymbol{x} = (0,1,2,3,4,5)'$ and $\boldsymbol{y} = (0,1,0,1,1,1)'$. A logistic regression model is put forward for these data such that $\text{logit}(\Pr(y_i = 1 | x_i)) = \text{logit}(\pi(x_i)) = \beta_0 + \beta_1 x_i$. Starting from $\boldsymbol{\beta}^{(0)} = (0,0)'$, perform the first five steps of the Newton-Raphson algorithm to find the maximum of the likelihood. Put your results in a table with as columns: iteration number, current point and loglikelihood value. Do the same for iterative reweighted least squares.__
+
+_Solution_
+
+For logistic regression, the likelihood is defined as
+$$
+\begin{aligned}
+L &= \prod^N_{i=1} \frac{e^{y_i(\beta_0 + \beta_1 x_i)}}{1 + e^{(\beta_0 + \beta_1x_i)}}, \\
+\ell &= \sum^N_{i=1} y_i(\beta_0 + \beta_1x_i) - \log(1 + e^{(\beta_0 + \beta_1x_i)}).
+\end{aligned}
+$$
+Additionally, the Gradient is defined by
+$$
+\nabla \ell(\beta_0, \beta_1) = \begin{pmatrix}
+\sum^N_{i=1} y_i - \frac{e^{(\beta_0 + \beta_1 x_i)}}{1 + e^{(\beta_0 + \beta_1 x_i)}} \\
+\sum^N_{i=1}x_i (y_i - \frac{e^{(\beta_0 + \beta_1 x_i)}}{1 + e^{(\beta_0 + \beta_1 x_i)}})
+\end{pmatrix},
+$$
+while the Hessian is defined as
+$$
+\nabla^2 \ell(\beta_0, \beta_1) = \begin{pmatrix}
+- \sum^N_{i=1} \frac{e^{(\beta_0 + \beta_1 x_i)}}{(1 + e^{(\beta_0 + \beta_1 x_i)})^2} & 
+- \sum^N_{i=1}x_i \frac{e^{(\beta_0 + \beta_1 x_i)}}{(1 + e^{(\beta_0 + \beta_1 x_i)})^2} \\
+- \sum^N_{i=1}x_i \frac{e^{(\beta_0 + \beta_1 x_i)}}{(1 + e^{(\beta_0 + \beta_1 x_i)})^2} &
+- \sum^N_{i=1} x_i^2\frac{e^{(\beta_0 + \beta_1 x_i)}}{(1 + e^{(\beta_0 + \beta_1 x_i)})^2}
+\end{pmatrix}.
+$$
+
+```{r}
+f <- function(x, y, beta0, beta1) {
+  sum(y * (beta0 + beta1*x) - log(1 + exp(beta0 + beta1*x)))
+}
+score <- function(x, y, beta0, beta1) {
+  c(sum(y - 1/(1 + exp(-(beta0 + beta1*x)))),
+    sum(x * (y - 1/(1 + exp(-(beta0 + beta1*x))))))
+}
+hess <- function(x, y, beta0, beta1) {
+  e <- exp(beta0 + beta1*x)
+  matrix(c(sum(-e/(1 + e)^2),
+           sum(- x * e/(1 + e)^2),
+           sum(- x * e/(1 + e)^2),
+           sum(- x^2 * e/(1 + e)^2)),
+         2, 2)
+}
+```
+
+__Newton-Raphson implementation__
+
+```{r}
+NR <- function(x, y, start, n.iter) {
+  b <- start
+  out <- matrix(0, n.iter + 1, 2)
+  out[1, ] <- b
+  
+  l <- numeric(n.iter+1)
+  l[1] <- f(x, y, b[1], b[2])
+  
+  for (i in 1:n.iter + 1) {
+    b <- b - solve(hess(x, y, b[1], b[2])) %*% score(x, y, b[1], b[2])
+    out[i, ] <- b
+    l[i] <- f(x, y, b[1], b[2])
+  }
+  
+  data.frame(iter = 0:n.iter,
+             b0 = out[,1],
+             b1 = out[,2],
+             logL = l)
+}
+
+x <- c(0,1,2,3,4,5)
+y <- c(0,1,0,1,1,1)
+
+NR(x, y, c(0,0), 5) |>
+  knitr::kable() |>
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+
+glm(y ~ x, family = binomial) |> summary()
+```
+
+__Iterative re-weighted least squares implementation__
+
+```{r}
+IRLS <- function(x, y, start, n.iter) {
+  
+  X <- cbind(1, x)
+  b <- start
+  out <- matrix(0, n.iter+1, 2)
+  out[1, ] <- b
+  
+  l <- numeric(n.iter+1)
+  l[1] <- f(x, y, b[1], b[2])
+  
+  for (i in 1:n.iter+1) {
+    e <- exp(X%*%b) / (1 + exp(X%*%b))
+    W <- diag(c(e / (1+exp(X %*% b))))
+    Z <- X %*% b + (y - e) * (1 / (e*(1-e)))
+    b <- solve(t(X) %*% W %*% X) %*% t(X) %*% W %*% Z
+    out[i, ] <- b
+    l[i] <- f(x, y, b[1], b[2])
+  }
+  data.frame(iter = 0:n.iter,
+             b0 = out[,1],
+             b1 = out[,2],
+             logL = l)
+}
+IRLS(x, y, c(0,0), 5) |>
+  knitr::kable() |>
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
