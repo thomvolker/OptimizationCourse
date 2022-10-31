@@ -354,50 +354,48 @@ e^{(\beta_0)} &amp;= 8 \\
 \log 44 - \log 3 - \log 8 &amp;= \beta_1 \approx 0.6061.
 \end{aligned}
 \]</span></p>
-<p>Newton-Raphson method (which is, in this case, exactly equivalent to the Fischer scoring method).</p>
+<p><strong>Newton-Raphson method</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>NR <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, start, n.iter) {</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>NR <span class="ot">&lt;-</span> <span class="cf">function</span>(formula, <span class="at">data =</span> <span class="cn">NULL</span>, start, n.iter) {</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  score <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, beta) {</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="at">beta0 =</span> <span class="fu">sum</span>(y <span class="sc">-</span> <span class="fu">exp</span>(beta[<span class="dv">1</span>] <span class="sc">+</span> beta[<span class="dv">2</span>]<span class="sc">*</span>x)),</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">beta1 =</span> <span class="fu">sum</span>(x <span class="sc">*</span> (y <span class="sc">-</span> <span class="fu">exp</span>(beta[<span class="dv">1</span>] <span class="sc">+</span> beta[<span class="dv">2</span>]<span class="sc">*</span>x))))</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  hess <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, beta) {</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fu">sum</span>(<span class="fu">exp</span>(beta[<span class="dv">1</span>] <span class="sc">+</span> beta[<span class="dv">2</span>]<span class="sc">*</span>x)),</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>             <span class="sc">-</span><span class="fu">sum</span>(x<span class="sc">*</span><span class="fu">exp</span>(beta[<span class="dv">1</span>] <span class="sc">+</span> beta[<span class="dv">2</span>]<span class="sc">*</span>x)),</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>             <span class="sc">-</span><span class="fu">sum</span>(x<span class="sc">*</span><span class="fu">exp</span>(beta[<span class="dv">1</span>] <span class="sc">+</span> beta[<span class="dv">2</span>]<span class="sc">*</span>x)),</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>             <span class="sc">-</span><span class="fu">sum</span>(x<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">exp</span>(beta[<span class="dv">1</span>] <span class="sc">+</span> beta[<span class="dv">2</span>]<span class="sc">*</span>x))),</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>           <span class="dv">2</span>, <span class="dv">2</span>, <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">"beta0"</span>, <span class="st">"beta1"</span>),</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                                 <span class="fu">c</span>(<span class="st">"beta0"</span>, <span class="st">"beta1"</span>)))</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> n.iter <span class="sc">+</span> <span class="dv">1</span>, <span class="at">ncol =</span> <span class="fu">length</span>(start))</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  out[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> b <span class="ot">&lt;-</span> start</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  Con <span class="ot">&lt;-</span> <span class="fu">sapply</span>(y, <span class="cf">function</span>(x) <span class="fu">sum</span>(<span class="fu">log</span>(<span class="dv">1</span><span class="sc">:</span>x))) <span class="sc">|&gt;</span> <span class="fu">sum</span>()</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(formula, data)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  Y <span class="ot">&lt;-</span> <span class="fu">model.frame</span>(formula, data)[,<span class="dv">1</span>]</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  loglikelihood <span class="ot">&lt;-</span> <span class="cf">function</span>(X, Y, beta) {</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    constant <span class="ot">&lt;-</span> <span class="fu">sapply</span>(Y, <span class="cf">function</span>(y) <span class="fu">sum</span>(<span class="fu">log</span>(<span class="dv">1</span><span class="sc">:</span>y))) <span class="sc">|&gt;</span> <span class="fu">sum</span>()</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>(y <span class="sc">-</span> X <span class="sc">%*%</span> beta <span class="sc">-</span> <span class="fu">exp</span>(X <span class="sc">%*%</span> beta) <span class="sc">-</span> constant)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  score <span class="ot">&lt;-</span> <span class="cf">function</span>(X, Y, beta) {</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">t</span>(X) <span class="sc">%*%</span> (Y <span class="sc">-</span> <span class="fu">exp</span>(X <span class="sc">%*%</span> beta))</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  hess <span class="ot">&lt;-</span> <span class="cf">function</span>(X, beta) {</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">diag</span>(<span class="fu">c</span>(<span class="fu">exp</span>(X <span class="sc">%*%</span> beta))) <span class="sc">%*%</span> X</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, n.iter<span class="sc">+</span><span class="dv">1</span>, <span class="fu">ncol</span>(X))</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  out[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> b <span class="ot">&lt;-</span> start</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  logL <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n.iter<span class="sc">+</span><span class="dv">1</span>)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  logL[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">sum</span>(y <span class="sc">-</span> (start[<span class="dv">1</span>] <span class="sc">+</span> start[<span class="dv">2</span>] <span class="sc">*</span> x) <span class="sc">-</span> </span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">exp</span>(start[<span class="dv">1</span>] <span class="sc">+</span> start[<span class="dv">2</span>] <span class="sc">*</span> x) <span class="sc">-</span> </span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>                   Con)</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> (<span class="dv">1</span><span class="sc">:</span>n.iter)<span class="sc">+</span><span class="dv">1</span>) {</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    b <span class="ot">&lt;-</span> b <span class="sc">-</span> <span class="fu">solve</span>(<span class="fu">hess</span>(x, y, b)) <span class="sc">%*%</span> <span class="fu">score</span>(x, y, b)</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    out[i, ] <span class="ot">&lt;-</span> b</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    logL[i] <span class="ot">&lt;-</span> <span class="fu">sum</span>(y <span class="sc">-</span> (b[<span class="dv">1</span>] <span class="sc">+</span> b[<span class="dv">2</span>] <span class="sc">*</span> x) <span class="sc">-</span> <span class="fu">exp</span>(b[<span class="dv">1</span>] <span class="sc">+</span> b[<span class="dv">2</span>] <span class="sc">*</span> x) <span class="sc">-</span> Con)</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">iter =</span> <span class="dv">0</span><span class="sc">:</span>n.iter,</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>             out,</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>             <span class="at">logL =</span> logL)</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">15</span>, <span class="dv">17</span>, <span class="dv">8</span>, <span class="dv">11</span>, <span class="dv">5</span>)</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="fu">NR</span>(x, y, <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="dv">20</span>) <span class="sc">|&gt;</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  logL[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">loglikelihood</span>(X, Y, b)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> (<span class="dv">1</span><span class="sc">:</span>n.iter)<span class="sc">+</span><span class="dv">1</span>) {</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    b <span class="ot">&lt;-</span> b <span class="sc">-</span> <span class="fu">solve</span>(<span class="fu">hess</span>(X, b)) <span class="sc">%*%</span> <span class="fu">score</span>(X, Y, b)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    out[i, ] <span class="ot">&lt;-</span> b</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    logL[i] <span class="ot">&lt;-</span> <span class="fu">loglikelihood</span>(X, Y, b)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">iter =</span> <span class="dv">0</span><span class="sc">:</span>n.iter,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>             out,</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>             <span class="at">logL =</span> logL)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">15</span>, <span class="dv">17</span>, <span class="dv">8</span>, <span class="dv">11</span>, <span class="dv">5</span>)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="fu">NR</span>(y <span class="sc">~</span> x, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="at">n.iter =</span> <span class="dv">20</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
@@ -541,6 +539,31 @@ e^{(\beta_0)} &amp;= 8 \\
 
 </div>
 </div>
+<p><strong>Fisher scoring</strong></p>
+<p>Note that in this case, the expected Hessian equals</p>
+<p><span class="math display">\[
+- x_i' \frac{\partial \mu_i}{\partial \theta_i} \nu_i^{-1} \frac{\partial \mu_i}{\partial \theta_i} x_i.
+\]</span></p>
+<p>Given that</p>
+<p><span class="math display">\[
+\frac{\partial \mu_i}{\partial \theta_i} = \frac{\partial \mu_i}{\partial \theta_i}
+\Bigg(\exp\{\theta_i\}\Bigg) = \exp{\theta_i},
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\nu_i^{-1} = \frac{1}{\exp\{\theta_i\}},
+\]</span></p>
+<p>it follows that</p>
+<p><span class="math display">\[
+\frac{\partial \mu_i}{\partial \theta_i} \nu_i^{-1} \frac{\partial \mu_i}{\partial \theta_i} = \exp\{\theta_i\} = \exp\{X\beta\}.
+\]</span></p>
+<p>Hence, for the expected Hessian, we have</p>
+<p><span class="math display">\[
+\mathcal{H} =
+E\Bigg(\frac{\partial^2 \ell}{\partial \beta \partial \beta'}\Bigg) =
+X' \text{diag}(\exp{X\beta})X,
+\]</span></p>
+<p>which is equal to the Hessian matrix <span class="math inline">\(H(\beta)\)</span>, and thus Fisher scoring and Newton-Raphson are equivalent in this case.</p>
 <p><strong>2. Assume the function</strong></p>
 <p><span class="math display">\[
 f(x_1, x_2) = 8x_1 + 12x_2 + x_1^2 - 2x_2^2.
@@ -549,34 +572,20 @@ f(x_1, x_2) = 8x_1 + 12x_2 + x_1^2 - 2x_2^2.
 <p><em>Solution</em></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'dplyr'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:stats':
-
-    filter, lag</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>fx1x2 <span class="ot">&lt;-</span> <span class="cf">function</span>(x1, x2) <span class="dv">8</span><span class="sc">*</span>x1 <span class="sc">+</span> <span class="dv">12</span><span class="sc">*</span>x2 <span class="sc">+</span> x1<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span>x2<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">expand.grid</span>(<span class="at">x1 =</span> <span class="sc">-</span><span class="dv">300</span><span class="sc">:</span><span class="dv">200</span><span class="sc">/</span><span class="dv">10</span>,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">x2 =</span> <span class="sc">-</span><span class="dv">200</span><span class="sc">:</span><span class="dv">300</span><span class="sc">/</span><span class="dv">10</span>) <span class="sc">|&gt;</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">f =</span> <span class="fu">map2_dbl</span>(x1, x2, fx1x2)) <span class="sc">|&gt;</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x1, <span class="at">y =</span> x2, <span class="at">z =</span> f)) <span class="sc">+</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_contour_filled</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(X[<span class="dv">1</span>])),</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(X[<span class="dv">2</span>])),</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Contour plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>fx1x2 <span class="ot">&lt;-</span> <span class="cf">function</span>(x1, x2) <span class="dv">8</span><span class="sc">*</span>x1 <span class="sc">+</span> <span class="dv">12</span><span class="sc">*</span>x2 <span class="sc">+</span> x1<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span>x2<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">expand.grid</span>(<span class="at">x1 =</span> <span class="sc">-</span><span class="dv">300</span><span class="sc">:</span><span class="dv">200</span><span class="sc">/</span><span class="dv">10</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">x2 =</span> <span class="sc">-</span><span class="dv">200</span><span class="sc">:</span><span class="dv">300</span><span class="sc">/</span><span class="dv">10</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">f =</span> <span class="fu">map2_dbl</span>(x1, x2, fx1x2)) <span class="sc">|&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x1, <span class="at">y =</span> x2, <span class="at">z =</span> f)) <span class="sc">+</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_contour_filled</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(X[<span class="dv">1</span>])),</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(X[<span class="dv">2</span>])),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Contour plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="chapter6_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -597,20 +606,20 @@ f(x1, x2) &amp;= 8x_1 + 12x_2 + x_1^2 - 2x_2^2, \\
 <p><span class="math display">\[
 f(x_1, x_2) = 100(x_2 - x_1^2)^2 + (1 - x_1)^2.
 \]</span></p>
-<p><strong>Show that (1, 1)’ is a local minimizer of this function. Also, starting from the point <span class="math inline">\(\boldsymbol{x}^{(0)}=(0,0)'\)</span>, perform the first five steps of the steepest descent and the Newton Raphson algorithm to minimize the function. Put your results in a table with as columns: iteration number, current point, function value and gradient.</strong></p>
+<p><strong>Show that (1, 1)’ is a local minimizer of this function. Also, starting from the point <span class="math inline">\(\boldsymbol{x}^{(0)}=(0,0)'\)</span>, perform the first five steps of the steepest descent and the Newton-Raphson algorithm to minimize the function. Put your results in a table with as columns: iteration number, current point, function value and gradient.</strong></p>
 <p><em>Solution</em></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fx1x2 <span class="ot">&lt;-</span> <span class="cf">function</span>(x1, x2) <span class="dv">100</span><span class="sc">*</span>(x2 <span class="sc">-</span> x1<span class="sc">^</span><span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> x1)<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">expand.grid</span>(<span class="at">x1 =</span> <span class="sc">-</span><span class="dv">100</span><span class="sc">:</span><span class="dv">200</span><span class="sc">/</span><span class="dv">100</span>,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">x2 =</span> <span class="sc">-</span><span class="dv">100</span><span class="sc">:</span><span class="dv">200</span><span class="sc">/</span><span class="dv">100</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">f =</span> <span class="fu">map2_dbl</span>(x1, x2, fx1x2)) <span class="sc">|&gt;</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x1, <span class="at">y =</span> x2, <span class="at">z =</span> f)) <span class="sc">+</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_contour_filled</span>(<span class="at">bins =</span> <span class="dv">50</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(X[<span class="dv">1</span>])),</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(X[<span class="dv">2</span>])),</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Contour plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fx1x2 <span class="ot">&lt;-</span> <span class="cf">function</span>(x1, x2) <span class="dv">100</span><span class="sc">*</span>(x2 <span class="sc">-</span> x1<span class="sc">^</span><span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> x1)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">expand.grid</span>(<span class="at">x1 =</span> <span class="sc">-</span><span class="dv">100</span><span class="sc">:</span><span class="dv">200</span><span class="sc">/</span><span class="dv">100</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">x2 =</span> <span class="sc">-</span><span class="dv">100</span><span class="sc">:</span><span class="dv">200</span><span class="sc">/</span><span class="dv">100</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">f =</span> <span class="fu">map2_dbl</span>(x1, x2, fx1x2)) <span class="sc">|&gt;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x1, <span class="at">y =</span> x2, <span class="at">z =</span> f)) <span class="sc">+</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_contour_filled</span>(<span class="at">bins =</span> <span class="dv">50</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(X[<span class="dv">1</span>])),</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(X[<span class="dv">2</span>])),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Contour plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="chapter6_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -634,53 +643,66 @@ f(x_1, x_2) &amp;= 100(x_2 - x_1^2)^2 + (1 - x_1)^2, \\
 1200x_1^2 - 400x_2 + 2 &amp; -400x_1 \\
 -400x_1 &amp; 200 \end{pmatrix}
 \]</span></p>
+<p><strong>Steepest-Descent</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="cf">function</span>(x1, x2) <span class="dv">100</span><span class="sc">*</span>(x2 <span class="sc">-</span> x1<span class="sc">^</span><span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> x1)<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> <span class="cf">function</span>(x1, x2) {</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">400</span><span class="sc">*</span>x1<span class="sc">^</span><span class="dv">3</span> <span class="sc">-</span> <span class="dv">400</span><span class="sc">*</span>x1<span class="sc">*</span>x2 <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span>x1 <span class="sc">-</span> <span class="dv">2</span>,</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">200</span><span class="sc">*</span>x2 <span class="sc">-</span> <span class="dv">200</span><span class="sc">*</span>x1<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>hess <span class="ot">&lt;-</span> <span class="cf">function</span>(x1, x2) {</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1200</span><span class="sc">*</span>x1<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">400</span><span class="sc">*</span>x2 <span class="sc">+</span> <span class="dv">2</span>, <span class="sc">-</span><span class="dv">400</span><span class="sc">*</span>x1, <span class="sc">-</span><span class="dv">400</span><span class="sc">*</span>x1, <span class="dv">200</span>),</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>         <span class="dv">2</span>, <span class="dv">2</span>)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>NR <span class="ot">&lt;-</span> <span class="cf">function</span>(start, n.iter, alpha, rho) {</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> start</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  grad <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, n.iter <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">2</span>)</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  grad[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> <span class="fu">score</span>(b[<span class="dv">1</span>], b[<span class="dv">2</span>])</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, n.iter <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">2</span>)</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  out[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> b</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n.iter <span class="sc">+</span> <span class="dv">1</span>) {</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    fold <span class="ot">&lt;-</span> <span class="fu">f</span>(out[i<span class="dv">-1</span>,<span class="dv">1</span>], out[i<span class="dv">-1</span>,<span class="dv">2</span>])</span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    b <span class="ot">&lt;-</span> out[i <span class="sc">-</span> <span class="dv">1</span>, ]</span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    out[i, ] <span class="ot">&lt;-</span> b <span class="sc">-</span> <span class="fu">solve</span>(<span class="fu">hess</span>(b[<span class="dv">1</span>], b[<span class="dv">2</span>])) <span class="sc">%*%</span> <span class="fu">score</span>(b[<span class="dv">1</span>], b[<span class="dv">2</span>])</span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    grad[i, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">score</span>(b[<span class="dv">1</span>], b[<span class="dv">2</span>]))</span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    fnew <span class="ot">&lt;-</span> <span class="fu">f</span>(out[i,<span class="dv">1</span>], out[i,<span class="dv">2</span>])</span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    a <span class="ot">&lt;-</span> alpha</span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (fnew<span class="sc">&gt;</span>fold){</span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>      a <span class="ot">&lt;-</span> a<span class="sc">*</span>rho</span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>      out[i,] <span class="ot">&lt;-</span> out[i<span class="dv">-1</span>,] <span class="sc">-</span> a <span class="sc">*</span> <span class="fu">solve</span>(<span class="fu">hess</span>(b[<span class="dv">1</span>], b[<span class="dv">2</span>])) <span class="sc">%*%</span> <span class="fu">score</span>(b[<span class="dv">1</span>], b[<span class="dv">2</span>])</span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>      grad[i, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">score</span>(out[i,<span class="dv">1</span>], out[i,<span class="dv">2</span>]))</span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>      fnew <span class="ot">&lt;-</span> <span class="fu">f</span>(out[i,<span class="dv">1</span>], out[i,<span class="dv">2</span>])</span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">iter =</span> <span class="dv">0</span><span class="sc">:</span>n.iter,</span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>             <span class="at">out =</span> out,</span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>             <span class="at">f_val =</span> <span class="dv">100</span> <span class="sc">*</span> (out[,<span class="dv">2</span>] <span class="sc">-</span> out[,<span class="dv">1</span>]<span class="sc">^</span><span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> out[,<span class="dv">1</span>])<span class="sc">^</span><span class="dv">2</span>,</span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>             <span class="at">gradient =</span> grad)</span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="fu">NR</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="dv">15</span>, <span class="dv">1</span>, <span class="fl">0.8</span>) <span class="sc">|&gt;</span></span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="cf">function</span>(x1, x2) <span class="dv">100</span><span class="sc">*</span>(x2 <span class="sc">-</span> x1<span class="sc">^</span><span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> x1)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> <span class="cf">function</span>(x1, x2) {</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">400</span><span class="sc">*</span>x1<span class="sc">^</span><span class="dv">3</span> <span class="sc">-</span> <span class="dv">400</span><span class="sc">*</span>x1<span class="sc">*</span>x2 <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span>x1 <span class="sc">-</span> <span class="dv">2</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">200</span><span class="sc">*</span>x2 <span class="sc">-</span> <span class="dv">200</span><span class="sc">*</span>x1<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>hess <span class="ot">&lt;-</span> <span class="cf">function</span>(x1, x2) {</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1200</span><span class="sc">*</span>x1<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">400</span><span class="sc">*</span>x2 <span class="sc">+</span> <span class="dv">2</span>, <span class="sc">-</span><span class="dv">400</span><span class="sc">*</span>x1, <span class="sc">-</span><span class="dv">400</span><span class="sc">*</span>x1, <span class="dv">200</span>), </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>SD <span class="ot">&lt;-</span> <span class="cf">function</span>(start, n.iter, alpha, rho, <span class="at">tol =</span> <span class="fl">1e-16</span>) {</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> start</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  grad <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, n.iter <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  grad[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> <span class="fu">score</span>(b[<span class="dv">1</span>], b[<span class="dv">2</span>])</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, n.iter <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  out[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> b</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  i <span class="ot">&lt;-</span> <span class="dv">1</span>; conv <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (<span class="sc">!</span>conv) {</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    i <span class="ot">&lt;-</span> i<span class="sc">+</span><span class="dv">1</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    fold <span class="ot">&lt;-</span> <span class="fu">f</span>(out[i<span class="dv">-1</span>, <span class="dv">1</span>], out[i<span class="dv">-1</span>, <span class="dv">2</span>])</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    gradvec <span class="ot">&lt;-</span> <span class="fu">score</span>(out[i<span class="dv">-1</span>, <span class="dv">1</span>], out[i<span class="dv">-1</span>, <span class="dv">2</span>])</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    out[i, ] <span class="ot">&lt;-</span> out[i<span class="dv">-1</span>, ] <span class="sc">-</span> alpha <span class="sc">*</span> gradvec <span class="sc">/</span> <span class="fu">sum</span>(gradvec<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    grad[i, ] <span class="ot">&lt;-</span> gradvec</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    fnew <span class="ot">&lt;-</span> <span class="fu">f</span>(out[i,<span class="dv">1</span>], out[i,<span class="dv">2</span>])</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    a <span class="ot">&lt;-</span> alpha</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span>(fnew <span class="sc">&gt;</span> fold) {</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>      a <span class="ot">&lt;-</span> a<span class="sc">*</span>rho</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>      out[i, ] <span class="ot">&lt;-</span> out[i<span class="dv">-1</span>, ] <span class="sc">-</span> a <span class="sc">*</span> gradvec <span class="sc">/</span> <span class="fu">sum</span>(gradvec<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>      grad[i, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">score</span>(out[i,<span class="dv">1</span>], out[i,<span class="dv">2</span>]))</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>      fnew <span class="ot">&lt;-</span> <span class="fu">f</span>(out[i,<span class="dv">1</span>], out[i,<span class="dv">2</span>])</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>      i <span class="sc">-</span> <span class="dv">1</span> <span class="sc">==</span> n.iter <span class="sc">|</span> </span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>      <span class="fu">abs</span>(fnew <span class="sc">-</span> fold) <span class="sc">&lt;</span> tol</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    ) {</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>      conv <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">iter =</span> <span class="dv">0</span><span class="sc">:</span>(<span class="fu">nrow</span>(out)<span class="sc">-</span><span class="dv">1</span>), </span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>             <span class="at">out  =</span> out, </span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>             <span class="at">grad =</span> grad, </span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>             <span class="at">fval =</span> <span class="fu">f</span>(out[,<span class="dv">1</span>], out[,<span class="dv">2</span>])) <span class="sc">|&gt;</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    <span class="fu">subset</span>(iter <span class="sc">&lt;</span> i)</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>SDout <span class="ot">&lt;-</span> <span class="fu">SD</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="dv">20000</span>, <span class="dv">1</span>, <span class="fl">0.8</span>, <span class="fl">1e-10</span>)</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>SDout <span class="sc">|&gt;</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">15</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
@@ -689,9 +711,9 @@ f(x_1, x_2) &amp;= 100(x_2 - x_1^2)^2 + (1 - x_1)^2, \\
    <th style="text-align:right;"> iter </th>
    <th style="text-align:right;"> out.1 </th>
    <th style="text-align:right;"> out.2 </th>
-   <th style="text-align:right;"> f_val </th>
-   <th style="text-align:right;"> gradient.1 </th>
-   <th style="text-align:right;"> gradient.2 </th>
+   <th style="text-align:right;"> grad.1 </th>
+   <th style="text-align:right;"> grad.2 </th>
+   <th style="text-align:right;"> fval </th>
   </tr>
  </thead>
 <tbody>
@@ -699,113 +721,290 @@ f(x_1, x_2) &amp;= 100(x_2 - x_1^2)^2 + (1 - x_1)^2, \\
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0.0000000 </td>
    <td style="text-align:right;"> 0.0000000 </td>
+   <td style="text-align:right;"> -2.0000000 </td>
+   <td style="text-align:right;"> 0.000000 </td>
    <td style="text-align:right;"> 1.0000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.2560000 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+   <td style="text-align:right;"> 5.2228864 </td>
+   <td style="text-align:right;"> -13.107200 </td>
+   <td style="text-align:right;"> 0.9830327 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.2297645 </td>
+   <td style="text-align:right;"> 0.0658398 </td>
+   <td style="text-align:right;"> 5.2228864 </td>
+   <td style="text-align:right;"> -13.107200 </td>
+   <td style="text-align:right;"> 0.6102878 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 0.2503131 </td>
+   <td style="text-align:right;"> 0.0462667 </td>
+   <td style="text-align:right;"> 0.1416746 </td>
+   <td style="text-align:right;"> -3.277992 </td>
+   <td style="text-align:right;"> 0.5888936 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 0.2491826 </td>
+   <td style="text-align:right;"> 0.0724227 </td>
+   <td style="text-align:right;"> -2.5313281 </td>
+   <td style="text-align:right;"> 2.066142 </td>
+   <td style="text-align:right;"> 0.5743991 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 0.2695487 </td>
+   <td style="text-align:right;"> 0.0557993 </td>
+   <td style="text-align:right;"> 0.3566254 </td>
+   <td style="text-align:right;"> -3.371428 </td>
+   <td style="text-align:right;"> 0.5619755 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 0.2668834 </td>
+   <td style="text-align:right;"> 0.0809960 </td>
+   <td style="text-align:right;"> -2.5091373 </td>
+   <td style="text-align:right;"> 1.953857 </td>
+   <td style="text-align:right;"> 0.5470039 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 7 </td>
+   <td style="text-align:right;"> 0.2881952 </td>
+   <td style="text-align:right;"> 0.0644006 </td>
+   <td style="text-align:right;"> 0.7270034 </td>
+   <td style="text-align:right;"> -3.731174 </td>
+   <td style="text-align:right;"> 0.5414702 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 0.2827931 </td>
+   <td style="text-align:right;"> 0.0921256 </td>
+   <td style="text-align:right;"> -2.8092036 </td>
+   <td style="text-align:right;"> 2.430734 </td>
+   <td style="text-align:right;"> 0.5291569 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 9 </td>
+   <td style="text-align:right;"> 0.3046506 </td>
+   <td style="text-align:right;"> 0.0732128 </td>
+   <td style="text-align:right;"> 0.9976613 </td>
+   <td style="text-align:right;"> -3.919835 </td>
+   <td style="text-align:right;"> 0.5219235 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 10 </td>
+   <td style="text-align:right;"> 0.2981029 </td>
+   <td style="text-align:right;"> 0.0989389 </td>
+   <td style="text-align:right;"> -2.6049709 </td>
+   <td style="text-align:right;"> 2.014701 </td>
+   <td style="text-align:right;"> 0.5028071 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 11 </td>
+   <td style="text-align:right;"> 0.3187362 </td>
+   <td style="text-align:right;"> 0.0829810 </td>
+   <td style="text-align:right;"> 1.0103687 </td>
+   <td style="text-align:right;"> -3.722352 </td>
+   <td style="text-align:right;"> 0.4987602 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 12 </td>
+   <td style="text-align:right;"> 0.3114437 </td>
+   <td style="text-align:right;"> 0.1098474 </td>
+   <td style="text-align:right;"> -2.9779538 </td>
+   <td style="text-align:right;"> 2.570033 </td>
+   <td style="text-align:right;"> 0.4906224 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 13 </td>
+   <td style="text-align:right;"> 0.3321087 </td>
+   <td style="text-align:right;"> 0.0920131 </td>
+   <td style="text-align:right;"> 1.0930160 </td>
+   <td style="text-align:right;"> -3.656631 </td>
+   <td style="text-align:right;"> 0.4795061 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 14 </td>
+   <td style="text-align:right;"> 0.3240513 </td>
+   <td style="text-align:right;"> 0.1189688 </td>
+   <td style="text-align:right;"> -3.1613443 </td>
+   <td style="text-align:right;"> 2.791914 </td>
+   <td style="text-align:right;"> 0.4763936 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<p><strong>Newton-Raphson</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>NR <span class="ot">&lt;-</span> <span class="cf">function</span>(start, n.iter, alpha, rho) {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> start</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  grad <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, n.iter <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  grad[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> <span class="fu">score</span>(b[<span class="dv">1</span>], b[<span class="dv">2</span>])</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, n.iter <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  out[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> b</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n.iter <span class="sc">+</span> <span class="dv">1</span>) {</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    fold <span class="ot">&lt;-</span> <span class="fu">f</span>(out[i<span class="dv">-1</span>,<span class="dv">1</span>], out[i<span class="dv">-1</span>,<span class="dv">2</span>])</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    b <span class="ot">&lt;-</span> out[i <span class="sc">-</span> <span class="dv">1</span>, ]</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    out[i, ] <span class="ot">&lt;-</span> b <span class="sc">-</span> <span class="fu">solve</span>(<span class="fu">hess</span>(b[<span class="dv">1</span>], b[<span class="dv">2</span>])) <span class="sc">%*%</span> <span class="fu">score</span>(b[<span class="dv">1</span>], b[<span class="dv">2</span>])</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    grad[i, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">score</span>(b[<span class="dv">1</span>], b[<span class="dv">2</span>]))</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    fnew <span class="ot">&lt;-</span> <span class="fu">f</span>(out[i,<span class="dv">1</span>], out[i,<span class="dv">2</span>])</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    a <span class="ot">&lt;-</span> alpha</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (fnew<span class="sc">&gt;</span>fold){</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>      a <span class="ot">&lt;-</span> a<span class="sc">*</span>rho</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>      out[i,] <span class="ot">&lt;-</span> out[i<span class="dv">-1</span>,] <span class="sc">-</span> a <span class="sc">*</span> <span class="fu">solve</span>(<span class="fu">hess</span>(b[<span class="dv">1</span>], b[<span class="dv">2</span>])) <span class="sc">%*%</span> <span class="fu">score</span>(b[<span class="dv">1</span>], b[<span class="dv">2</span>])</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>      grad[i, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">score</span>(out[i,<span class="dv">1</span>], out[i,<span class="dv">2</span>]))</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>      fnew <span class="ot">&lt;-</span> <span class="fu">f</span>(out[i,<span class="dv">1</span>], out[i,<span class="dv">2</span>])</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">iter =</span> <span class="dv">0</span><span class="sc">:</span>(<span class="fu">nrow</span>(out)<span class="sc">-</span><span class="dv">1</span>), </span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">out  =</span> out, </span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>             <span class="at">grad =</span> grad, </span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>             <span class="at">fval =</span> <span class="fu">f</span>(out[,<span class="dv">1</span>], out[,<span class="dv">2</span>]))</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>NRout <span class="ot">&lt;-</span> <span class="fu">NR</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="dv">15</span>, <span class="dv">1</span>, <span class="fl">0.8</span>) </span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>NRout <span class="sc">|&gt;</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:right;"> iter </th>
+   <th style="text-align:right;"> out.1 </th>
+   <th style="text-align:right;"> out.2 </th>
+   <th style="text-align:right;"> grad.1 </th>
+   <th style="text-align:right;"> grad.2 </th>
+   <th style="text-align:right;"> fval </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
    <td style="text-align:right;"> -2.0000000 </td>
    <td style="text-align:right;"> 0.0000000 </td>
+   <td style="text-align:right;"> 1.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 1 </td>
    <td style="text-align:right;"> 0.2097152 </td>
    <td style="text-align:right;"> 0.0000000 </td>
-   <td style="text-align:right;"> 0.8179782 </td>
    <td style="text-align:right;"> 2.1087792 </td>
    <td style="text-align:right;"> -8.7960930 </td>
+   <td style="text-align:right;"> 0.8179782 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 2 </td>
    <td style="text-align:right;"> 0.2903887 </td>
    <td style="text-align:right;"> 0.0778174 </td>
-   <td style="text-align:right;"> 0.5077839 </td>
    <td style="text-align:right;"> 2.1087792 </td>
    <td style="text-align:right;"> -8.7960930 </td>
+   <td style="text-align:right;"> 0.5077839 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 0.4877049 </td>
    <td style="text-align:right;"> 0.1965794 </td>
-   <td style="text-align:right;"> 0.4328224 </td>
    <td style="text-align:right;"> 7.0277391 </td>
    <td style="text-align:right;"> -8.2553296 </td>
+   <td style="text-align:right;"> 0.4328224 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 4 </td>
    <td style="text-align:right;"> 0.5430563 </td>
    <td style="text-align:right;"> 0.2918463 </td>
-   <td style="text-align:right;"> 0.2097363 </td>
    <td style="text-align:right;"> 7.0277391 </td>
    <td style="text-align:right;"> -8.2553296 </td>
+   <td style="text-align:right;"> 0.2097363 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 5 </td>
    <td style="text-align:right;"> 0.7243882 </td>
    <td style="text-align:right;"> 0.4907541 </td>
-   <td style="text-align:right;"> 0.1914547 </td>
    <td style="text-align:right;"> 9.2958913 </td>
    <td style="text-align:right;"> -6.7968490 </td>
+   <td style="text-align:right;"> 0.1914547 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 6 </td>
    <td style="text-align:right;"> 0.7597374 </td>
    <td style="text-align:right;"> 0.5759513 </td>
-   <td style="text-align:right;"> 0.0578823 </td>
    <td style="text-align:right;"> 9.2958913 </td>
    <td style="text-align:right;"> -6.7968490 </td>
+   <td style="text-align:right;"> 0.0578823 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 7 </td>
    <td style="text-align:right;"> 0.8827605 </td>
    <td style="text-align:right;"> 0.7636815 </td>
-   <td style="text-align:right;"> 0.0380329 </td>
    <td style="text-align:right;"> 5.2684843 </td>
    <td style="text-align:right;"> -3.1169062 </td>
+   <td style="text-align:right;"> 0.0380329 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 8 </td>
    <td style="text-align:right;"> 0.9112381 </td>
    <td style="text-align:right;"> 0.8295438 </td>
-   <td style="text-align:right;"> 0.0079444 </td>
    <td style="text-align:right;"> 5.2684843 </td>
    <td style="text-align:right;"> -3.1169062 </td>
+   <td style="text-align:right;"> 0.0079444 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 9 </td>
    <td style="text-align:right;"> 0.9876125 </td>
    <td style="text-align:right;"> 0.9695454 </td>
-   <td style="text-align:right;"> 0.0035559 </td>
    <td style="text-align:right;"> 0.1180717 </td>
    <td style="text-align:right;"> -0.1621945 </td>
+   <td style="text-align:right;"> 0.0035559 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 10 </td>
    <td style="text-align:right;"> 0.9933299 </td>
    <td style="text-align:right;"> 0.9866717 </td>
-   <td style="text-align:right;"> 0.0000446 </td>
    <td style="text-align:right;"> 2.2795435 </td>
    <td style="text-align:right;"> -1.1666107 </td>
+   <td style="text-align:right;"> 0.0000446 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 11 </td>
    <td style="text-align:right;"> 0.9999567 </td>
    <td style="text-align:right;"> 0.9998694 </td>
-   <td style="text-align:right;"> 0.0000002 </td>
    <td style="text-align:right;"> -0.0003516 </td>
    <td style="text-align:right;"> -0.0065379 </td>
+   <td style="text-align:right;"> 0.0000002 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 12 </td>
    <td style="text-align:right;"> 0.9999996 </td>
    <td style="text-align:right;"> 0.9999992 </td>
-   <td style="text-align:right;"> 0.0000000 </td>
    <td style="text-align:right;"> 0.0174780 </td>
    <td style="text-align:right;"> -0.0087827 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 13 </td>
    <td style="text-align:right;"> 1.0000000 </td>
    <td style="text-align:right;"> 1.0000000 </td>
    <td style="text-align:right;"> 0.0000000 </td>
-   <td style="text-align:right;"> 0.0000000 </td>
    <td style="text-align:right;"> -0.0000004 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 14 </td>
@@ -826,6 +1025,24 @@ f(x_1, x_2) &amp;= 100(x_2 - x_1^2)^2 + (1 - x_1)^2, \\
 </tbody>
 </table>
 
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">expand.grid</span>(<span class="at">x1 =</span> <span class="sc">-</span><span class="dv">50</span><span class="sc">:</span><span class="dv">150</span><span class="sc">/</span><span class="dv">100</span>,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">x2 =</span> <span class="sc">-</span><span class="dv">50</span><span class="sc">:</span><span class="dv">150</span><span class="sc">/</span><span class="dv">100</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">f =</span> <span class="fu">map2_dbl</span>(x1, x2, fx1x2)) <span class="sc">|&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x1, <span class="at">y =</span> x2, <span class="at">z =</span> f)) <span class="sc">+</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_contour_filled</span>(<span class="at">bins =</span> <span class="dv">50</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> SDout, </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> out<span class="fl">.1</span>, <span class="at">y =</span> out<span class="fl">.2</span>, <span class="at">z =</span> <span class="cn">NULL</span>), </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">col =</span> <span class="st">"yellow"</span>) <span class="sc">+</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> NRout, </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> out<span class="fl">.1</span>, <span class="at">y =</span> out<span class="fl">.2</span>, <span class="at">z =</span> <span class="cn">NULL</span>),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">col =</span> <span class="st">"orange"</span>) <span class="sc">+</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(X[<span class="dv">1</span>])),</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(<span class="fu">italic</span>(X[<span class="dv">2</span>])),</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Contour plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="chapter6_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p><strong>4. Suppose for an individual during consecutive nights, it is recorded how loudly he snores (covariate <span class="math inline">\(x\)</span>) and whether he wakes up or not (the outcome <span class="math inline">\(Y\)</span>). Consider the following hypothetical data are collected: <span class="math inline">\(\boldsymbol{x} = (0,1,2,3,4,5)'\)</span> and <span class="math inline">\(\boldsymbol{y} = (0,1,0,1,1,1)'\)</span>. A logistic regression model is put forward for these data such that <span class="math inline">\(\text{logit}(\Pr(y_i = 1 | x_i)) = \text{logit}(\pi(x_i)) = \beta_0 + \beta_1 x_i\)</span>. Starting from <span class="math inline">\(\boldsymbol{\beta}^{(0)} = (0,0)'\)</span>, perform the first five steps of the Newton-Raphson algorithm to find the maximum of the likelihood. Put your results in a table with as columns: iteration number, current point and loglikelihood value. Do the same for iterative reweighted least squares.</strong></p>
@@ -854,50 +1071,46 @@ L &amp;= \prod^N_{i=1} \frac{e^{y_i(\beta_0 + \beta_1 x_i)}}{1 + e^{(\beta_0 + \
 \end{pmatrix}.
 \]</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, beta0, beta1) {</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(y <span class="sc">*</span> (beta0 <span class="sc">+</span> beta1<span class="sc">*</span>x) <span class="sc">-</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(beta0 <span class="sc">+</span> beta1<span class="sc">*</span>x)))</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, beta0, beta1) {</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="fu">sum</span>(y <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>(beta0 <span class="sc">+</span> beta1<span class="sc">*</span>x)))),</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>(x <span class="sc">*</span> (y <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>(beta0 <span class="sc">+</span> beta1<span class="sc">*</span>x))))))</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>hess <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, beta0, beta1) {</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  e <span class="ot">&lt;-</span> <span class="fu">exp</span>(beta0 <span class="sc">+</span> beta1<span class="sc">*</span>x)</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fu">sum</span>(<span class="sc">-</span>e<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> e)<span class="sc">^</span><span class="dv">2</span>),</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>           <span class="fu">sum</span>(<span class="sc">-</span> x <span class="sc">*</span> e<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> e)<span class="sc">^</span><span class="dv">2</span>),</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>           <span class="fu">sum</span>(<span class="sc">-</span> x <span class="sc">*</span> e<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> e)<span class="sc">^</span><span class="dv">2</span>),</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>           <span class="fu">sum</span>(<span class="sc">-</span> x<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> e<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> e)<span class="sc">^</span><span class="dv">2</span>)),</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>         <span class="dv">2</span>, <span class="dv">2</span>)</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>loglikelihood <span class="ot">&lt;-</span> <span class="cf">function</span>(X, Y, beta) {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(Y <span class="sc">*</span> (X<span class="sc">%*%</span>beta) <span class="sc">-</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(X <span class="sc">%*%</span> beta)))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> <span class="cf">function</span>(X, Y, beta) {</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">t</span>(X) <span class="sc">%*%</span> (Y <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>X<span class="sc">%*%</span>beta)))</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>hess <span class="ot">&lt;-</span> <span class="cf">function</span>(X, Y, beta) {</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">diag</span>(<span class="fu">c</span>(<span class="fu">exp</span>(<span class="sc">-</span>(X<span class="sc">%*%</span>beta))<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>X<span class="sc">%*%</span>beta))<span class="sc">^</span><span class="dv">2</span>)) <span class="sc">%*%</span> X</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><strong>Newton-Raphson implementation</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>NR <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, start, n.iter) {</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> start</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, n.iter <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">2</span>)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  out[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> b</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  l <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n.iter<span class="sc">+</span><span class="dv">1</span>)</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  l[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">f</span>(x, y, b[<span class="dv">1</span>], b[<span class="dv">2</span>])</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n.iter <span class="sc">+</span> <span class="dv">1</span>) {</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    b <span class="ot">&lt;-</span> b <span class="sc">-</span> <span class="fu">solve</span>(<span class="fu">hess</span>(x, y, b[<span class="dv">1</span>], b[<span class="dv">2</span>])) <span class="sc">%*%</span> <span class="fu">score</span>(x, y, b[<span class="dv">1</span>], b[<span class="dv">2</span>])</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    out[i, ] <span class="ot">&lt;-</span> b</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    l[i] <span class="ot">&lt;-</span> <span class="fu">f</span>(x, y, b[<span class="dv">1</span>], b[<span class="dv">2</span>])</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">iter =</span> <span class="dv">0</span><span class="sc">:</span>n.iter,</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>             <span class="at">b0 =</span> out[,<span class="dv">1</span>],</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>             <span class="at">b1 =</span> out[,<span class="dv">2</span>],</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>             <span class="at">logL =</span> l)</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>)</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>)</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="fu">NR</span>(x, y, <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="dv">5</span>) <span class="sc">|&gt;</span></span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>NRlogistic <span class="ot">&lt;-</span> <span class="cf">function</span>(formula, <span class="at">data =</span> <span class="cn">NULL</span>, start, n.iter) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(formula, data)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  Y <span class="ot">&lt;-</span> <span class="fu">model.frame</span>(formula, data)[, <span class="dv">1</span>]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, n.iter<span class="sc">+</span><span class="dv">1</span>, <span class="fu">ncol</span>(X))</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  out[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> b <span class="ot">&lt;-</span> start</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  logL <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n.iter<span class="sc">+</span><span class="dv">1</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  logL <span class="ot">&lt;-</span> <span class="fu">loglikelihood</span>(X, Y, b)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n.iter <span class="sc">+</span> <span class="dv">1</span>) {</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    b <span class="ot">&lt;-</span> b <span class="sc">-</span> <span class="fu">solve</span>(<span class="fu">hess</span>(X, Y, b)) <span class="sc">%*%</span> <span class="fu">score</span>(X, Y, b)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    out[i, ] <span class="ot">&lt;-</span> b</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    logL[i] <span class="ot">&lt;-</span> <span class="fu">loglikelihood</span>(X, Y, b)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">iter =</span> <span class="dv">0</span><span class="sc">:</span>n.iter,</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>             <span class="at">b0 =</span> out[,<span class="dv">1</span>],</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>             <span class="at">b1 =</span> out[,<span class="dv">2</span>],</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>             <span class="at">logL =</span> logL)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="fu">NRlogistic</span>(y <span class="sc">~</span> x, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="at">n.iter =</span> <span class="dv">5</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
@@ -950,7 +1163,7 @@ L &amp;= \prod^N_{i=1} \frac{e^{y_i(\beta_0 + \beta_1 x_i)}}{1 + e^{(\beta_0 + \
 </table>
 
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glm</span>(y <span class="sc">~</span> x, <span class="at">family =</span> binomial) <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glm</span>(y <span class="sc">~</span> x, <span class="at">family =</span> binomial) <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -974,34 +1187,35 @@ AIC: 8.8802
 Number of Fisher Scoring iterations: 5</code></pre>
 </div>
 </div>
+<p>Convergence is reached after five iterations!</p>
 <p><strong>Iterative re-weighted least squares implementation</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>IRLS <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, start, n.iter) {</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">1</span>, x)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> start</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, n.iter<span class="sc">+</span><span class="dv">1</span>, <span class="dv">2</span>)</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  out[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> b</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  l <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n.iter<span class="sc">+</span><span class="dv">1</span>)</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  l[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">f</span>(x, y, b[<span class="dv">1</span>], b[<span class="dv">2</span>])</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n.iter<span class="sc">+</span><span class="dv">1</span>) {</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    e <span class="ot">&lt;-</span> <span class="fu">exp</span>(X<span class="sc">%*%</span>b) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(X<span class="sc">%*%</span>b))</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    W <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="fu">c</span>(e <span class="sc">/</span> (<span class="dv">1</span><span class="sc">+</span><span class="fu">exp</span>(X <span class="sc">%*%</span> b))))</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    Z <span class="ot">&lt;-</span> X <span class="sc">%*%</span> b <span class="sc">+</span> (y <span class="sc">-</span> e) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">/</span> (e<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>e)))</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    b <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> W <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> W <span class="sc">%*%</span> Z</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    out[i, ] <span class="ot">&lt;-</span> b</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    l[i] <span class="ot">&lt;-</span> <span class="fu">f</span>(x, y, b[<span class="dv">1</span>], b[<span class="dv">2</span>])</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">iter =</span> <span class="dv">0</span><span class="sc">:</span>n.iter,</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>             <span class="at">b0 =</span> out[,<span class="dv">1</span>],</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>             <span class="at">b1 =</span> out[,<span class="dv">2</span>],</span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>             <span class="at">logL =</span> l)</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="fu">IRLS</span>(x, y, <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="dv">5</span>) <span class="sc">|&gt;</span></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>IRLS <span class="ot">&lt;-</span> <span class="cf">function</span>(formula, <span class="at">data =</span> <span class="cn">NULL</span>, start, n.iter) {</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(formula, data)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  Y <span class="ot">&lt;-</span> <span class="fu">model.frame</span>(formula, data)[,<span class="dv">1</span>]</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, n.iter<span class="sc">+</span><span class="dv">1</span>, <span class="fu">ncol</span>(X))</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  out[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> b <span class="ot">&lt;-</span> start</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  logL <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n.iter<span class="sc">+</span><span class="dv">1</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  logL[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">loglikelihood</span>(X, Y, b)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n.iter<span class="sc">+</span><span class="dv">1</span>) {</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    e <span class="ot">&lt;-</span> <span class="fu">exp</span>(X<span class="sc">%*%</span>b) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(X<span class="sc">%*%</span>b))</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    W <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="fu">c</span>(e <span class="sc">/</span> (<span class="dv">1</span><span class="sc">+</span><span class="fu">exp</span>(X <span class="sc">%*%</span> b))))</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    Z <span class="ot">&lt;-</span> X <span class="sc">%*%</span> b <span class="sc">+</span> (y <span class="sc">-</span> e) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">/</span> (e<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>e)))</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    b <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> W <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> W <span class="sc">%*%</span> Z</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    out[i, ] <span class="ot">&lt;-</span> b</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    logL[i] <span class="ot">&lt;-</span> <span class="fu">loglikelihood</span>(X, Y, b)</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">iter =</span> <span class="dv">0</span><span class="sc">:</span>n.iter,</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>             <span class="at">b0 =</span> out[,<span class="dv">1</span>],</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>             <span class="at">b1 =</span> out[,<span class="dv">2</span>],</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>             <span class="at">logL =</span> logL)</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="fu">IRLS</span>(y <span class="sc">~</span> x, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="at">n.iter =</span> <span class="dv">5</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
@@ -1053,6 +1267,256 @@ Number of Fisher Scoring iterations: 5</code></pre>
 </tbody>
 </table>
 
+</div>
+</div>
+<p>And again, convergence is reached after five iterations!</p>
+<p><strong>5. Consider the function</strong></p>
+<p><span class="math display">\[
+f(x) = \frac{e^x}{(1 + e^x)^2}.
+\]</span></p>
+<p><strong>Using an iterative procedure of your liking, find the optimum of the function, and check whether it is a minimum or a maximum.</strong></p>
+<p><em>Solution</em></p>
+<p>First, calculate we calculate the derivatives.</p>
+<p><span class="math display">\[
+\begin{aligned}
+f(x) &amp;= \frac{e^x}{(1 + e^x)^2}, \\
+f'(x) &amp;= \frac{e^x - e^{2x}}{(1+e^x)^3}, \\
+f''(x) &amp;= \frac{e^x - 4e^{2x} + e^{3x}}{(1+e^x)^4}.
+\end{aligned}
+\]</span></p>
+<p>We can first find the optimum analytically. Let’s first take the log of the function, which makes it easier to work with:</p>
+<p><span class="math display">\[
+\log f(x) = x - 2 \log (1+e^x).
+\]</span></p>
+<p>Subsequently, we take the derivative of <span class="math inline">\(\log f(x)\)</span> and set it equal to zero to find the optimum.</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{\partial f}{\partial x} = 1 - \frac{2e^x}{1+e^x} &amp;= 0, \\
+\implies \frac{2e^x}{1+e^x} &amp;= 1, \\
+1+e^x &amp;= 2e^x, \\
+e^x &amp;= 1, \\
+x &amp;= 0.
+\end{aligned}
+\]</span></p>
+<p>So we know the solution must be <span class="math inline">\(x=0\)</span>. Doing the same steps using the Newton-Raphson algorithm yields</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fx <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="sc">-</span><span class="fu">exp</span>(x) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>f1x <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="sc">-</span>(<span class="fu">exp</span>(x) <span class="sc">-</span> <span class="fu">exp</span>(<span class="dv">2</span><span class="sc">*</span>x)) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))<span class="sc">^</span><span class="dv">3</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>f2x <span class="ot">&lt;-</span> <span class="cf">function</span>(x) (<span class="fu">exp</span>(x) <span class="sc">-</span> <span class="dv">4</span><span class="sc">*</span><span class="fu">exp</span>(<span class="dv">2</span><span class="sc">*</span>x) <span class="sc">+</span> <span class="fu">exp</span>(<span class="dv">3</span><span class="sc">*</span>x)) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))<span class="sc">^</span><span class="dv">4</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>NR <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">start =</span> <span class="fl">0.5</span>, <span class="at">n.iter =</span> <span class="dv">20</span>, <span class="at">alpha =</span> <span class="dv">1</span>, <span class="at">rho =</span> <span class="fl">0.8</span>) {</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, n.iter<span class="sc">+</span><span class="dv">1</span>, <span class="dv">4</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  out[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(start, <span class="fu">fx</span>(start), <span class="fu">f1x</span>(start), <span class="fu">f2x</span>(start))</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(out) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"x"</span>, <span class="st">"fx"</span>, <span class="st">"f1x"</span>, <span class="st">"f2x"</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n.iter <span class="sc">+</span> <span class="dv">1</span>) {</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    a <span class="ot">&lt;-</span> alpha</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    new <span class="ot">&lt;-</span> out[i<span class="dv">-1</span>, <span class="dv">1</span>] <span class="sc">-</span> a <span class="sc">*</span> out[i<span class="dv">-1</span>, <span class="dv">3</span>] <span class="sc">/</span> out[i<span class="dv">-1</span>, <span class="dv">4</span>]</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    out[i, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(new, <span class="fu">fx</span>(new), <span class="fu">f1x</span>(new), <span class="fu">f2x</span>(new))</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span>(out[i, <span class="dv">2</span>] <span class="sc">&gt;</span> out[i<span class="dv">-1</span>, <span class="dv">2</span>]) {</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>      a <span class="ot">&lt;-</span> a<span class="sc">*</span>rho</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>      new <span class="ot">&lt;-</span> out[i<span class="dv">-1</span>, <span class="dv">1</span>] <span class="sc">-</span> a <span class="sc">*</span> out[i<span class="dv">-1</span>, <span class="dv">3</span>] <span class="sc">/</span> out[i<span class="dv">-1</span>, <span class="dv">4</span>]</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>      out[i, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(new, <span class="fu">fx</span>(new), <span class="fu">f1x</span>(new), <span class="fu">f2x</span>(new))</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  out</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="fu">NR</span>(<span class="fl">0.5</span>, <span class="dv">5</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:right;"> x </th>
+   <th style="text-align:right;"> fx </th>
+   <th style="text-align:right;"> f1x </th>
+   <th style="text-align:right;"> f2x </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> -0.2350037 </td>
+   <td style="text-align:right;"> 0.0575568 </td>
+   <td style="text-align:right;"> -0.0963568 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> -0.2350037 </td>
+   <td style="text-align:right;"> 0.0575568 </td>
+   <td style="text-align:right;"> -0.0963568 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> -0.2350037 </td>
+   <td style="text-align:right;"> 0.0575568 </td>
+   <td style="text-align:right;"> -0.0963568 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> -0.2350037 </td>
+   <td style="text-align:right;"> 0.0575568 </td>
+   <td style="text-align:right;"> -0.0963568 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> -0.2350037 </td>
+   <td style="text-align:right;"> 0.0575568 </td>
+   <td style="text-align:right;"> -0.0963568 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> -0.2350037 </td>
+   <td style="text-align:right;"> 0.0575568 </td>
+   <td style="text-align:right;"> -0.0963568 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<p><strong>6. Continuation of exercise 6 from chapter 3: implement maximum likelihood estimation for this logistic regression.</strong></p>
+<p><em>Solution</em></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="fl">1.5</span>, <span class="dv">2</span>, <span class="fl">2.5</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">NRlogistic</span>(y <span class="sc">~</span> x, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="at">n.iter =</span> <span class="dv">5</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:right;"> iter </th>
+   <th style="text-align:right;"> b0 </th>
+   <th style="text-align:right;"> b1 </th>
+   <th style="text-align:right;"> logL </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0.000000 </td>
+   <td style="text-align:right;"> 0.000000 </td>
+   <td style="text-align:right;"> -3.465736 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> -2.800000 </td>
+   <td style="text-align:right;"> 1.600000 </td>
+   <td style="text-align:right;"> -2.479523 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> -3.698907 </td>
+   <td style="text-align:right;"> 2.079500 </td>
+   <td style="text-align:right;"> -2.423599 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> -3.886773 </td>
+   <td style="text-align:right;"> 2.177155 </td>
+   <td style="text-align:right;"> -2.421969 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> -3.893957 </td>
+   <td style="text-align:right;"> 2.180846 </td>
+   <td style="text-align:right;"> -2.421967 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> -3.893967 </td>
+   <td style="text-align:right;"> 2.180851 </td>
+   <td style="text-align:right;"> -2.421967 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">IRLS</span>(y <span class="sc">~</span> x, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="at">n.iter =</span> <span class="dv">5</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:right;"> iter </th>
+   <th style="text-align:right;"> b0 </th>
+   <th style="text-align:right;"> b1 </th>
+   <th style="text-align:right;"> logL </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0.000000 </td>
+   <td style="text-align:right;"> 0.000000 </td>
+   <td style="text-align:right;"> -3.465736 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> -2.800000 </td>
+   <td style="text-align:right;"> 1.600000 </td>
+   <td style="text-align:right;"> -2.479523 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> -3.698907 </td>
+   <td style="text-align:right;"> 2.079500 </td>
+   <td style="text-align:right;"> -2.423599 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> -3.886773 </td>
+   <td style="text-align:right;"> 2.177155 </td>
+   <td style="text-align:right;"> -2.421969 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> -3.893957 </td>
+   <td style="text-align:right;"> 2.180846 </td>
+   <td style="text-align:right;"> -2.421967 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> -3.893967 </td>
+   <td style="text-align:right;"> 2.180851 </td>
+   <td style="text-align:right;"> -2.421967 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glm</span>(y <span class="sc">~</span> x, <span class="at">family =</span> binomial) <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = y ~ x, family = binomial)
+
+Deviance Residuals: 
+      1        2        3        4        5  
+-0.3430  -0.5758   1.4506  -1.3814   0.6181  
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)   -3.894      3.465  -1.124    0.261
+x              2.181      1.950   1.119    0.263
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 6.7301  on 4  degrees of freedom
+Residual deviance: 4.8439  on 3  degrees of freedom
+AIC: 8.8439
+
+Number of Fisher Scoring iterations: 4</code></pre>
 </div>
 </div>
 
