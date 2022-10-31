@@ -100,39 +100,37 @@ $$
 \end{aligned}
 $$
 
-Newton-Raphson method (which is, in this case, exactly equivalent to the Fischer scoring method).
+__Newton-Raphson method__
 
 ```{r}
-NR <- function(x, y, start, n.iter) {
+NR <- function(formula, data = NULL, start, n.iter) {
   
-  score <- function(x, y, beta) {
-    c(beta0 = sum(y - exp(beta[1] + beta[2]*x)),
-      beta1 = sum(x * (y - exp(beta[1] + beta[2]*x))))
+  X <- model.matrix(formula, data)
+  Y <- model.frame(formula, data)[,1]
+  
+  loglikelihood <- function(X, Y, beta) {
+    constant <- sapply(Y, function(y) sum(log(1:y))) |> sum()
+    sum(y - X %*% beta - exp(X %*% beta) - constant)
   }
   
-  hess <- function(x, y, beta) {
-    matrix(c(-sum(exp(beta[1] + beta[2]*x)),
-             -sum(x*exp(beta[1] + beta[2]*x)),
-             -sum(x*exp(beta[1] + beta[2]*x)),
-             -sum(x^2 * exp(beta[1] + beta[2]*x))),
-           2, 2, dimnames = list(c("beta0", "beta1"),
-                                 c("beta0", "beta1")))
+  score <- function(X, Y, beta) {
+    t(X) %*% (Y - exp(X %*% beta))
   }
-
-  out <- matrix(0, nrow = n.iter + 1, ncol = length(start))
+  
+  hess <- function(X, beta) {
+    - t(X) %*% diag(c(exp(X %*% beta))) %*% X
+  }
+  
+  out <- matrix(0, n.iter+1, ncol(X))
   out[1, ] <- b <- start
   
-  Con <- sapply(y, function(x) sum(log(1:x))) |> sum()
-  
   logL <- numeric(n.iter+1)
-  logL[1] <- sum(y - (start[1] + start[2] * x) - 
-                   exp(start[1] + start[2] * x) - 
-                   Con)
+  logL[1] <- loglikelihood(X, Y, b)
   
   for (i in (1:n.iter)+1) {
-    b <- b - solve(hess(x, y, b)) %*% score(x, y, b)
+    b <- b - solve(hess(X, b)) %*% score(X, Y, b)
     out[i, ] <- b
-    logL[i] <- sum(y - (b[1] + b[2] * x) - exp(b[1] + b[2] * x) - Con)
+    logL[i] <- loglikelihood(X, Y, b)
   }
   data.frame(iter = 0:n.iter,
              out,
@@ -142,11 +140,38 @@ NR <- function(x, y, start, n.iter) {
 x <- c(1, 1, 1, 0, 0, 0)
 y <- c(12, 15, 17, 8, 11, 5)
 
-NR(x, y, c(0,0), 20) |>
+NR(y ~ x, start = c(0,0), n.iter = 20) |>
   knitr::kable() |>
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 
 ```
+
+__Fisher scoring__
+
+Note that in this case, the expected Hessian equals 
+$$
+- x_i' \frac{\partial \mu_i}{\partial \theta_i} \nu_i^{-1} \frac{\partial \mu_i}{\partial \theta_i} x_i. 
+$$
+Given that
+$$
+\frac{\partial \mu_i}{\partial \theta_i} = \frac{\partial \mu_i}{\partial \theta_i}
+\Bigg(\exp\{\theta_i\}\Bigg) = \exp{\theta_i},
+$$
+and
+$$
+\nu_i^{-1} = \frac{1}{\exp\{\theta_i\}},
+$$
+it follows that
+$$
+\frac{\partial \mu_i}{\partial \theta_i} \nu_i^{-1} \frac{\partial \mu_i}{\partial \theta_i} = \exp\{\theta_i\} = \exp\{X\beta\}.
+$$
+Hence, for the expected Hessian, we have
+$$
+\mathcal{H} = 
+E\Bigg(\frac{\partial^2 \ell}{\partial \beta \partial \beta'}\Bigg) =
+X' \text{diag}(\exp{X\beta})X,
+$$
+which is equal to the Hessian matrix $H(\beta)$, and thus Fisher scoring and Newton-Raphson are equivalent in this case.
 
 __2. Assume the function__
 $$
@@ -157,6 +182,7 @@ __Sketch the contour lines of $f(x_1, x_2)$, and find the stationary point of $f
 _Solution_
 
 ```{r}
+#| message: false
 library(ggplot2)
 library(dplyr)
 library(purrr)
@@ -191,7 +217,7 @@ __3. Consider the function__
 $$
 f(x_1, x_2) = 100(x_2 - x_1^2)^2 + (1 - x_1)^2.
 $$
-__Show that (1, 1)' is a local minimizer of this function. Also, starting from the point $\boldsymbol{x}^{(0)}=(0,0)'$, perform the first five steps of the steepest descent and the Newton Raphson algorithm to minimize the function. Put your results in a table with as columns: iteration number, current point, function value and gradient.__
+__Show that (1, 1)' is a local minimizer of this function. Also, starting from the point $\boldsymbol{x}^{(0)}=(0,0)'$, perform the first five steps of the steepest descent and the Newton-Raphson algorithm to minimize the function. Put your results in a table with as columns: iteration number, current point, function value and gradient.__
 
 _Solution_
 
@@ -229,6 +255,8 @@ $$
 -400x_1 & 200 \end{pmatrix}
 $$
 
+__Steepest-Descent__
+
 ```{r}
 f <- function(x1, x2) 100*(x2 - x1^2)^2 + (1 - x1)^2
 
@@ -238,10 +266,61 @@ score <- function(x1, x2) {
 }
   
 hess <- function(x1, x2) {
-  matrix(c(1200*x1^2 - 400*x2 + 2, -400*x1, -400*x1, 200),
-         2, 2)
+  matrix(c(1200*x1^2 - 400*x2 + 2, -400*x1, -400*x1, 200), 
+         nrow = 2, ncol = 2)
 }
 
+SD <- function(start, n.iter, alpha, rho, tol = 1e-16) {
+  b <- start
+  grad <- matrix(0, n.iter + 1, 2)
+  grad[1, ] <- score(b[1], b[2])
+  
+  out <- matrix(0, n.iter + 1, 2)
+  out[1, ] <- b
+  
+  i <- 1; conv <- FALSE
+  
+  while (!conv) {
+    i <- i+1
+    fold <- f(out[i-1, 1], out[i-1, 2])
+    gradvec <- score(out[i-1, 1], out[i-1, 2])
+    out[i, ] <- out[i-1, ] - alpha * gradvec / sum(gradvec^2)
+    grad[i, ] <- gradvec
+    
+    fnew <- f(out[i,1], out[i,2])
+    a <- alpha
+    while(fnew > fold) {
+      a <- a*rho
+      out[i, ] <- out[i-1, ] - a * gradvec / sum(gradvec^2)
+      grad[i, ] <- c(score(out[i,1], out[i,2]))
+      fnew <- f(out[i,1], out[i,2])
+    }
+    if (
+      i - 1 == n.iter | 
+      abs(fnew - fold) < tol
+    ) {
+      conv <- TRUE
+    }
+    
+  }
+  data.frame(iter = 0:(nrow(out)-1), 
+             out  = out, 
+             grad = grad, 
+             fval = f(out[,1], out[,2])) |>
+    subset(iter < i)
+}
+
+SDout <- SD(c(0,0), 20000, 1, 0.8, 1e-10)
+
+SDout |>
+  head(15) |>
+  knitr::kable() |>
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+__Newton-Raphson__
+
+```{r}
 NR <- function(start, n.iter, alpha, rho) {
   
   b <- start
@@ -268,14 +347,32 @@ NR <- function(start, n.iter, alpha, rho) {
       fnew <- f(out[i,1], out[i,2])
     }
   }
-  data.frame(iter = 0:n.iter,
-             out = out,
-             f_val = 100 * (out[,2] - out[,1]^2)^2 + (1 - out[,1])^2,
-             gradient = grad)
+  data.frame(iter = 0:(nrow(out)-1), 
+             out  = out, 
+             grad = grad, 
+             fval = f(out[,1], out[,2]))
 }
-NR(c(0,0), 15, 1, 0.8) |>
+NRout <- NR(c(0,0), 15, 1, 0.8) 
+
+NRout |>
   knitr::kable() |>
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+
+expand.grid(x1 = -50:150/100,
+            x2 = -50:150/100) |>
+  mutate(f = map2_dbl(x1, x2, fx1x2)) |>
+  ggplot(aes(x = x1, y = x2, z = f)) +
+  stat_contour_filled(bins = 50, show.legend = FALSE) +
+  geom_line(data = SDout, 
+            mapping = aes(x = out.1, y = out.2, z = NULL), 
+            col = "yellow") +
+  geom_line(data = NRout, 
+            mapping = aes(x = out.1, y = out.2, z = NULL),
+            col = "orange") +
+  theme_minimal() +
+  labs(x = expression(italic(X[1])),
+       y = expression(italic(X[2])),
+       title = "Contour plot")
 ```
 
 __4. Suppose for an individual during consecutive nights, it is recorded how loudly he snores (covariate $x$) and whether he wakes up or not (the outcome $Y$). Consider the following hypothetical data are collected: $\boldsymbol{x} = (0,1,2,3,4,5)'$ and $\boldsymbol{y} = (0,1,0,1,1,1)'$. A logistic regression model is put forward for these data such that $\text{logit}(\Pr(y_i = 1 | x_i)) = \text{logit}(\pi(x_i)) = \beta_0 + \beta_1 x_i$. Starting from $\boldsymbol{\beta}^{(0)} = (0,0)'$, perform the first five steps of the Newton-Raphson algorithm to find the maximum of the likelihood. Put your results in a table with as columns: iteration number, current point and loglikelihood value. Do the same for iterative reweighted least squares.__
@@ -307,68 +404,65 @@ $$
 $$
 
 ```{r}
-f <- function(x, y, beta0, beta1) {
-  sum(y * (beta0 + beta1*x) - log(1 + exp(beta0 + beta1*x)))
+loglikelihood <- function(X, Y, beta) {
+  sum(Y * (X%*%beta) - log(1 + exp(X %*% beta)))
 }
-score <- function(x, y, beta0, beta1) {
-  c(sum(y - 1/(1 + exp(-(beta0 + beta1*x)))),
-    sum(x * (y - 1/(1 + exp(-(beta0 + beta1*x))))))
+score <- function(X, Y, beta) {
+  t(X) %*% (Y - 1/(1 + exp(-X%*%beta)))
 }
-hess <- function(x, y, beta0, beta1) {
-  e <- exp(beta0 + beta1*x)
-  matrix(c(sum(-e/(1 + e)^2),
-           sum(- x * e/(1 + e)^2),
-           sum(- x * e/(1 + e)^2),
-           sum(- x^2 * e/(1 + e)^2)),
-         2, 2)
+hess <- function(X, Y, beta) {
+  - t(X) %*% diag(c(exp(-(X%*%beta))/(1 + exp(-X%*%beta))^2)) %*% X
 }
 ```
 
 __Newton-Raphson implementation__
 
 ```{r}
-NR <- function(x, y, start, n.iter) {
-  b <- start
-  out <- matrix(0, n.iter + 1, 2)
-  out[1, ] <- b
+NRlogistic <- function(formula, data = NULL, start, n.iter) {
+  X <- model.matrix(formula, data)
+  Y <- model.frame(formula, data)[, 1]
   
-  l <- numeric(n.iter+1)
-  l[1] <- f(x, y, b[1], b[2])
+  out <- matrix(0, n.iter+1, ncol(X))
+  out[1, ] <- b <- start
+  
+  logL <- numeric(n.iter+1)
+  logL <- loglikelihood(X, Y, b)
   
   for (i in 1:n.iter + 1) {
-    b <- b - solve(hess(x, y, b[1], b[2])) %*% score(x, y, b[1], b[2])
+    b <- b - solve(hess(X, Y, b)) %*% score(X, Y, b)
     out[i, ] <- b
-    l[i] <- f(x, y, b[1], b[2])
+    logL[i] <- loglikelihood(X, Y, b)
   }
   
   data.frame(iter = 0:n.iter,
              b0 = out[,1],
              b1 = out[,2],
-             logL = l)
+             logL = logL)
 }
 
 x <- c(0,1,2,3,4,5)
 y <- c(0,1,0,1,1,1)
 
-NR(x, y, c(0,0), 5) |>
+NRlogistic(y ~ x, start = c(0,0), n.iter = 5) |>
   knitr::kable() |>
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 
 glm(y ~ x, family = binomial) |> summary()
 ```
+Convergence is reached after five iterations!
 
 __Iterative re-weighted least squares implementation__
 
 ```{r}
-IRLS <- function(x, y, start, n.iter) {
+IRLS <- function(formula, data = NULL, start, n.iter) {
   
-  X <- cbind(1, x)
-  b <- start
-  out <- matrix(0, n.iter+1, 2)
-  out[1, ] <- b
+  X <- model.matrix(formula, data)
+  Y <- model.frame(formula, data)[,1]
+  out <- matrix(0, n.iter+1, ncol(X))
+  out[1, ] <- b <- start
   
-  l <- numeric(n.iter+1)
-  l[1] <- f(x, y, b[1], b[2])
+  logL <- numeric(n.iter+1)
+  logL[1] <- loglikelihood(X, Y, b)
   
   for (i in 1:n.iter+1) {
     e <- exp(X%*%b) / (1 + exp(X%*%b))
@@ -376,15 +470,97 @@ IRLS <- function(x, y, start, n.iter) {
     Z <- X %*% b + (y - e) * (1 / (e*(1-e)))
     b <- solve(t(X) %*% W %*% X) %*% t(X) %*% W %*% Z
     out[i, ] <- b
-    l[i] <- f(x, y, b[1], b[2])
+    logL[i] <- loglikelihood(X, Y, b)
   }
   data.frame(iter = 0:n.iter,
              b0 = out[,1],
              b1 = out[,2],
-             logL = l)
+             logL = logL)
 }
-IRLS(x, y, c(0,0), 5) |>
+IRLS(y ~ x, start = c(0,0), n.iter = 5) |>
   knitr::kable() |>
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+And again, convergence is reached after five iterations!
+
+__5. Consider the function__
+$$
+f(x) = \frac{e^x}{(1 + e^x)^2}.
+$$
+__Using an iterative procedure of your liking, find the optimum of the function, and check whether it is a minimum or a maximum.__
+
+_Solution_
+
+First, calculate we calculate the derivatives. 
+$$
+\begin{aligned}
+f(x) &= \frac{e^x}{(1 + e^x)^2}, \\
+f'(x) &= \frac{e^x - e^{2x}}{(1+e^x)^3}, \\
+f''(x) &= \frac{e^x - 4e^{2x} + e^{3x}}{(1+e^x)^4}.
+\end{aligned}
+$$
+We can first find the optimum analytically. Let's first take the log of the function, which makes it easier to work with:
+$$
+\log f(x) = x - 2 \log (1+e^x).
+$$
+Subsequently, we take the derivative of $\log f(x)$ and set it equal to zero to find the optimum.
+$$
+\begin{aligned}
+\frac{\partial f}{\partial x} = 1 - \frac{2e^x}{1+e^x} &= 0, \\
+\implies \frac{2e^x}{1+e^x} &= 1, \\
+1+e^x &= 2e^x, \\
+e^x &= 1, \\
+x &= 0.
+\end{aligned}
+$$
+So we know the solution must be $x=0$. Doing the same steps using the Newton-Raphson algorithm yields
+
+```{r} 
+fx <- function(x) -exp(x) / (1 + exp(x))^2
+f1x <- function(x) -(exp(x) - exp(2*x)) / (1 + exp(x))^3
+f2x <- function(x) (exp(x) - 4*exp(2*x) + exp(3*x)) / (1 + exp(x))^4
+
+NR <- function(start = 0.5, n.iter = 20, alpha = 1, rho = 0.8) {
+  out <- matrix(0, n.iter+1, 4)
+  out[1, ] <- c(start, fx(start), f1x(start), f2x(start))
+  
+  colnames(out) <- c("x", "fx", "f1x", "f2x")
+  
+  for (i in 1:n.iter + 1) {
+    a <- alpha
+    new <- out[i-1, 1] - a * out[i-1, 3] / out[i-1, 4]
+    out[i, ] <- c(new, fx(new), f1x(new), f2x(new))
+    while(out[i, 2] > out[i-1, 2]) {
+      a <- a*rho
+      new <- out[i-1, 1] - a * out[i-1, 3] / out[i-1, 4]
+      out[i, ] <- c(new, fx(new), f1x(new), f2x(new))
+    }
+  }
+  out
+}
+
+NR(0.5, 5) |>
+  knitr::kable() |>
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+__6. Continuation of exercise 6 from chapter 3: implement maximum likelihood estimation for this logistic regression.__
+
+_Solution_
+
+```{r}
+x <- c(0.5, 1, 1.5, 2, 2.5)
+y <- c(0,0,1,0,1)
+
+NRlogistic(y ~ x, start = c(0,0), n.iter = 5) |>
+  knitr::kable() |>
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+
+IRLS(y ~ x, start = c(0,0), n.iter = 5) |>
+  knitr::kable() |>
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+
+glm(y ~ x, family = binomial) |> summary()
 ```
 
