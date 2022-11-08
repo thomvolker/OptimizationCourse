@@ -88,7 +88,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./references.html" rel="next">
+<link href="./chapter7.html" rel="next">
 <link href="./chapter5.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -188,6 +188,21 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./chapter6.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Iteration-based Function Optimization</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter7.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">The MM algorithm with applications to regularized regression</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter8.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Constrained optimization</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter9.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Maximum Likelihood Estimation and Inference</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -1078,7 +1093,7 @@ L &amp;= \prod^N_{i=1} \frac{e^{y_i(\beta_0 + \beta_1 x_i)}}{1 + e^{(\beta_0 + \
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">t</span>(X) <span class="sc">%*%</span> (Y <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>X<span class="sc">%*%</span>beta)))</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>hess <span class="ot">&lt;-</span> <span class="cf">function</span>(X, Y, beta) {</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">diag</span>(<span class="fu">c</span>(<span class="fu">exp</span>(<span class="sc">-</span>(X<span class="sc">%*%</span>beta))<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>X<span class="sc">%*%</span>beta))<span class="sc">^</span><span class="dv">2</span>)) <span class="sc">%*%</span> X</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">diag</span>(<span class="fu">c</span>(<span class="fu">exp</span>(X<span class="sc">%*%</span>beta)<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(X<span class="sc">%*%</span>beta))<span class="sc">^</span><span class="dv">2</span>)) <span class="sc">%*%</span> X</span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><strong>Newton-Raphson implementation</strong></p>
@@ -1302,7 +1317,7 @@ x &amp;= 0.
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fx <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="sc">-</span><span class="fu">exp</span>(x) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))<span class="sc">^</span><span class="dv">2</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>f1x <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="sc">-</span>(<span class="fu">exp</span>(x) <span class="sc">-</span> <span class="fu">exp</span>(<span class="dv">2</span><span class="sc">*</span>x)) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))<span class="sc">^</span><span class="dv">3</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>f2x <span class="ot">&lt;-</span> <span class="cf">function</span>(x) (<span class="fu">exp</span>(x) <span class="sc">-</span> <span class="dv">4</span><span class="sc">*</span><span class="fu">exp</span>(<span class="dv">2</span><span class="sc">*</span>x) <span class="sc">+</span> <span class="fu">exp</span>(<span class="dv">3</span><span class="sc">*</span>x)) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))<span class="sc">^</span><span class="dv">4</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>f2x <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="sc">-</span>(<span class="fu">exp</span>(x) <span class="sc">-</span> <span class="dv">4</span><span class="sc">*</span><span class="fu">exp</span>(<span class="dv">2</span><span class="sc">*</span>x) <span class="sc">+</span> <span class="fu">exp</span>(<span class="dv">3</span><span class="sc">*</span>x)) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))<span class="sc">^</span><span class="dv">4</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>NR <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">start =</span> <span class="fl">0.5</span>, <span class="at">n.iter =</span> <span class="dv">20</span>, <span class="at">alpha =</span> <span class="dv">1</span>, <span class="at">rho =</span> <span class="fl">0.8</span>) {</span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, n.iter<span class="sc">+</span><span class="dv">1</span>, <span class="dv">4</span>)</span>
@@ -1339,40 +1354,40 @@ x &amp;= 0.
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 0.5000000 </td>
    <td style="text-align:right;"> -0.2350037 </td>
    <td style="text-align:right;"> 0.0575568 </td>
-   <td style="text-align:right;"> -0.0963568 </td>
+   <td style="text-align:right;"> 0.0963568 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 0.5 </td>
-   <td style="text-align:right;"> -0.2350037 </td>
-   <td style="text-align:right;"> 0.0575568 </td>
-   <td style="text-align:right;"> -0.0963568 </td>
+   <td style="text-align:right;"> -0.0973301 </td>
+   <td style="text-align:right;"> -0.2494089 </td>
+   <td style="text-align:right;"> -0.0121279 </td>
+   <td style="text-align:right;"> 0.1238198 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 0.5 </td>
-   <td style="text-align:right;"> -0.2350037 </td>
-   <td style="text-align:right;"> 0.0575568 </td>
-   <td style="text-align:right;"> -0.0963568 </td>
+   <td style="text-align:right;"> 0.0006180 </td>
+   <td style="text-align:right;"> -0.2500000 </td>
+   <td style="text-align:right;"> 0.0000773 </td>
+   <td style="text-align:right;"> 0.1250000 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 0.5 </td>
-   <td style="text-align:right;"> -0.2350037 </td>
-   <td style="text-align:right;"> 0.0575568 </td>
-   <td style="text-align:right;"> -0.0963568 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+   <td style="text-align:right;"> -0.2500000 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+   <td style="text-align:right;"> 0.1250000 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 0.5 </td>
-   <td style="text-align:right;"> -0.2350037 </td>
-   <td style="text-align:right;"> 0.0575568 </td>
-   <td style="text-align:right;"> -0.0963568 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+   <td style="text-align:right;"> -0.2500000 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+   <td style="text-align:right;"> 0.1250000 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 0.5 </td>
-   <td style="text-align:right;"> -0.2350037 </td>
-   <td style="text-align:right;"> 0.0575568 </td>
-   <td style="text-align:right;"> -0.0963568 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+   <td style="text-align:right;"> -0.2500000 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+   <td style="text-align:right;"> 0.1250000 </td>
   </tr>
 </tbody>
 </table>
@@ -1628,8 +1643,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./references.html" class="pagination-link">
-        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./chapter7.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">The MM algorithm with applications to regularized regression</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
