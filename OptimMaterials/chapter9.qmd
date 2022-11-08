@@ -1,0 +1,79 @@
+# Maximum Likelihood Estimation and Inference
+
+__1. Continuation of exercise 6 from Chapter 3 and exercise 6 from Chapter 5. Take the data and the logistic regression model. The point estimates are__
+$$
+\begin{pmatrix} \hat{\alpha} \\ \hat{\beta} \end{pmatrix} =
+\begin{pmatrix} - 3.89 \\ 2.18 \end{pmatrix}.
+$$
+__Obtain the asymptotic variance-covariance matrix and standard errors for $\hat{\alpha}$ and $\hat{\beta}$, and implement a test for $H_0: \alpha = 1$ and $\beta = 0$.__
+
+_Solution_
+
+Recall that the first- and second-order derivatives are defined as 
+$$
+\begin{aligned}
+\nabla \ell = S(\alpha, \beta) &= 
+\begin{pmatrix}
+\sum^n_{i=1} y_i - \frac{e^{\alpha + \beta x_i}}{1 + e^{\alpha + \beta x_i}} \\
+\sum^n_{i=1} x_i(y_i - \frac{e^{\alpha + \beta x_i}}{1 + e^{\alpha + \beta x_i}})
+\end{pmatrix} \\
+&= X' \Bigg(Y - \frac{e^{X\beta}}{1+e^{X\beta}}\Bigg) \\
+\nabla^2 \ell = H(\alpha, \beta) &= 
+\begin{pmatrix}
+- \sum^n_{i=1} \frac{e^{\alpha + \beta x_i}}{(1 + e^{\alpha + \beta x_i})^2} &
+- \sum^n_{i=1} x_i(\frac{e^{\alpha + \beta x_i}}{(1 + e^{\alpha + \beta x_i})^2}) \\
+- \sum^n_{i=1} x_i(\frac{e^{\alpha + \beta x_i}}{1 + e^{\alpha + \beta x_i}}) &
+- \sum^n_{i=1} x_i^2(\frac{e^{\alpha + \beta x_i}}{1 + e^{\alpha + \beta x_i}}) \\
+\end{pmatrix} \\
+&= X' \text{diag}\Bigg(\frac{e^{X \beta}}{1+e^{X \beta}}\Bigg) X.
+\end{aligned}
+$$
+
+The standard errors are defined as $\sqrt{\text{diag}[-H(\alpha, \beta)]'}$. So, we have
+```{r}
+loglikelihood <- function(Y, X, beta) {
+  sum(Y*(X %*% beta) - log(1 + exp(X %*% beta)))
+}
+score <- function(Y, X, beta) {
+  t(X) %*% (Y - 1 / (1 + exp(-X %*% beta)))
+}
+hessian <- function(X, beta) {
+  - t(X) %*% diag(c(exp(X %*% beta) / (1 + exp(X %*% beta))^2)) %*% X
+}
+
+NR <- function(formula, data = NULL, n.iter) {
+  X <- model.matrix(formula, data)
+  Y <- model.frame(formula, data)[,1]
+  
+  beta <- matrix(0, n.iter + 1, ncol(X))
+  
+  L <- numeric(n.iter)
+  L[1] <- loglikelihood(Y, X, beta[1, ])
+  t <- 1; conv <- FALSE
+  
+  while(!conv) {
+    t <- t + 1
+    beta[t, ] <- beta[t-1, ] - solve(hessian(X, beta[t-1, ])) %*% score(Y, X, beta[t-1, ])
+    L[t] <- loglikelihood(Y, X, beta[t, ])
+    
+    if (abs(L[t] - L[t-1]) < 1e-10 | t == n.iter) conv <- TRUE
+  }
+  
+  list(b = beta[1:t, ], 
+       se = diag(sqrt(solve(-hessian(X, beta[t, ])))),
+       loglik = L[1:t])
+}
+
+x <- c(0.5,1,1.5,2,2.5)
+y <- c(0,0,1,0,1)
+
+out <- NR(y ~ x, n.iter = 50)
+b <- out$b[nrow(out$b),]
+summary(glm(y ~ x, family = binomial))
+
+LT <- b - c(1, 0)
+LHL <- t(diag(2)) %*% (-solve(hessian(cbind(1,x), b))) %*% diag(2)
+
+pchisq(t(LT) %*% solve(LHL) %*% LT, 2, lower.tail = FALSE)
+```
+
