@@ -411,7 +411,7 @@ score <- function(X, Y, beta) {
   t(X) %*% (Y - 1/(1 + exp(-X%*%beta)))
 }
 hess <- function(X, Y, beta) {
-  - t(X) %*% diag(c(exp(-(X%*%beta))/(1 + exp(-X%*%beta))^2)) %*% X
+  - t(X) %*% diag(c(exp(X%*%beta)/(1 + exp(X%*%beta))^2)) %*% X
 }
 ```
 
@@ -519,7 +519,7 @@ So we know the solution must be $x=0$. Doing the same steps using the Newton-Rap
 ```{r} 
 fx <- function(x) -exp(x) / (1 + exp(x))^2
 f1x <- function(x) -(exp(x) - exp(2*x)) / (1 + exp(x))^3
-f2x <- function(x) (exp(x) - 4*exp(2*x) + exp(3*x)) / (1 + exp(x))^4
+f2x <- function(x) -(exp(x) - 4*exp(2*x) + exp(3*x)) / (1 + exp(x))^4
 
 NR <- function(start = 0.5, n.iter = 20, alpha = 1, rho = 0.8) {
   out <- matrix(0, n.iter+1, 4)
