@@ -60,7 +60,7 @@ NR <- function(formula, data = NULL, n.iter) {
   }
   
   list(b = beta[1:t, ], 
-       se = diag(sqrt(solve(-hessian(X, beta[t, ])))),
+       se = sqrt(diag(solve(-hessian(X, beta[t, ])))),
        loglik = L[1:t])
 }
 
@@ -68,6 +68,8 @@ x <- c(0.5,1,1.5,2,2.5)
 y <- c(0,0,1,0,1)
 
 out <- NR(y ~ x, n.iter = 50)
+out
+
 b <- out$b[nrow(out$b),]
 summary(glm(y ~ x, family = binomial))
 
@@ -77,3 +79,51 @@ LHL <- t(diag(2)) %*% (-solve(hessian(cbind(1,x), b))) %*% diag(2)
 pchisq(t(LT) %*% solve(LHL) %*% LT, 2, lower.tail = FALSE)
 ```
 
+__2. Assume that you maximize $\ell(\alpha; p, n) = p\alpha - n \ln (1 + e^\alpha)$ to estimate $\alpha$. In a next step, you want to find the optimal $\pi = \frac{e^\alpha}{1+e^{\alpha}}$. What is the MLE of $\pi$, and what is the standard error of $\pi$ (use the delta method).__
+
+_Solution_
+
+$$
+\begin{aligned}
+\ell(\alpha; p, n) &= p\alpha - n \ln (1 + e^\alpha) \\
+\frac{\partial \ell}{\partial \alpha} &=
+p - n \frac{e^\alpha}{1 + e^\alpha} \\
+\implies 0 &= p - n\pi \\
+\implies \pi &= \frac{p}{n}
+\end{aligned}
+$$
+Using the delta method to obtain the standard error yields
+$$
+\begin{aligned}
+\text{Var}(F(\hat\theta)) &= \frac{\partial F(\hat\theta)}{\partial \theta'} (-\hat{H})^{-1} \frac{\partial F(\hat\theta)}{\partial \theta} \\
+&= \frac{e^a}{(1+e^a)^2} \frac{(1+e^a)^2}{n e^a} \frac{e^a}{(1+e^a)^2} \\
+&= \pi(1-\pi) \frac{1}{n\pi(1-\pi)} \pi(1-\pi) \\
+&= \frac{\pi(1-\pi)}{n}, \\
+\text{SE}(F(\hat\theta)) &= \sqrt{\text{Var}(F(\hat\theta))} \\
+&= \sqrt{\frac{\pi(1-\pi)}{n}}.
+\end{aligned}
+$$
+
+__3. Suppose the maximum likelihood estimate of a probability $\pi$ is $\hat\pi = 0.75$ (based on $n = 10$ observations). The (approximate) standard error of this estimate is $SE(\hat\pi) \approx \sqrt{\frac{\hat\pi(1-\hat\pi)}{10}}$. What is the MLE of $\log \pi$ and what is the corresponding standard error.__
+
+_Solution_
+
+The MLE of $\log \pi$ equals 
+$$
+\begin{aligned}
+\text{MLE}(\log \pi) &= \log \text{MLE} (\pi) \\
+&= \log 0.75 \\
+&\approx `r round(log(0.75), 4)`.
+\end{aligned}
+$$
+Additionally, the standard error equals 
+$$
+\begin{aligned}
+\text{SE}(F(\hat\theta)) &= \sqrt{\text{Var}(F(\hat\theta))} \\
+&\approx \sqrt{\frac{\partial F(\hat\theta)}{\partial \theta'} (-\hat{H})^{-1} \frac{\partial F(\hat\theta)}{\partial \theta}} \\
+&= \sqrt{\Bigg(1 - \frac{e^a}{1+e^a}\Bigg) \frac{n e^a}{(1 + e^a)^2} \Bigg(1 - \frac{e^a}{1+e^a}\Bigg)} \\
+&= \sqrt{(1-\hat\pi)\frac{1}{n\hat\pi(1-\hat\pi)}(1-\hat\pi)} \\
+&= \sqrt{\frac{1-\hat\pi}{n\hat\pi}} \\
+&= \sqrt{\frac{0.25}{7.5}} \approx `r round(sqrt((1-0.75)/(10*0.75)), 4)`.
+\end{aligned}
+$$

@@ -290,16 +290,31 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">b =</span> beta[<span class="dv">1</span><span class="sc">:</span>t, ], </span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">se =</span> <span class="fu">diag</span>(<span class="fu">sqrt</span>(<span class="fu">solve</span>(<span class="sc">-</span><span class="fu">hessian</span>(X, beta[t, ])))),</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">se =</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(<span class="fu">solve</span>(<span class="sc">-</span><span class="fu">hessian</span>(X, beta[t, ])))),</span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">loglik =</span> L[<span class="dv">1</span><span class="sc">:</span>t])</span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.5</span>,<span class="dv">1</span>,<span class="fl">1.5</span>,<span class="dv">2</span>,<span class="fl">2.5</span>)</span>
 <span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>)</span>
 <span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">NR</span>(y <span class="sc">~</span> x, <span class="at">n.iter =</span> <span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in sqrt(solve(-hessian(X, beta[t, ]))): NaNs produced</code></pre>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">NR</span>(y <span class="sc">~</span> x, <span class="at">n.iter =</span> <span class="dv">50</span>)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>out</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$b
+          [,1]     [,2]
+[1,]  0.000000 0.000000
+[2,] -2.800000 1.600000
+[3,] -3.698907 2.079500
+[4,] -3.886773 2.177155
+[5,] -3.893957 2.180846
+[6,] -3.893967 2.180851
+
+$se
+(Intercept)           x 
+   3.465687    1.949705 
+
+$loglik
+[1] -3.465736 -2.479523 -2.423599 -2.421969 -2.421967 -2.421967</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> out<span class="sc">$</span>b[<span class="fu">nrow</span>(out<span class="sc">$</span>b),]</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">glm</span>(y <span class="sc">~</span> x, <span class="at">family =</span> binomial))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -334,6 +349,49 @@ Number of Fisher Scoring iterations: 4</code></pre>
 [1,] 0.2949003</code></pre>
 </div>
 </div>
+<p><strong>2. Assume that you maximize <span class="math inline">\(\ell(\alpha; p, n) = p\alpha - n \ln (1 + e^\alpha)\)</span> to estimate <span class="math inline">\(\alpha\)</span>. In a next step, you want to find the optimal <span class="math inline">\(\pi = \frac{e^\alpha}{1+e^{\alpha}}\)</span>. What is the MLE of <span class="math inline">\(\pi\)</span>, and what is the standard error of <span class="math inline">\(\pi\)</span> (use the delta method).</strong></p>
+<p><em>Solution</em></p>
+<p><span class="math display">\[
+\begin{aligned}
+\ell(\alpha; p, n) &amp;= p\alpha - n \ln (1 + e^\alpha) \\
+\frac{\partial \ell}{\partial \alpha} &amp;=
+p - n \frac{e^\alpha}{1 + e^\alpha} \\
+\implies 0 &amp;= p - n\pi \\
+\implies \pi &amp;= \frac{p}{n}
+\end{aligned}
+\]</span></p>
+<p>Using the delta method to obtain the standard error yields</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{Var}(F(\hat\theta)) &amp;= \frac{\partial F(\hat\theta)}{\partial \theta'} (-\hat{H})^{-1} \frac{\partial F(\hat\theta)}{\partial \theta} \\
+&amp;= \frac{e^a}{(1+e^a)^2} \frac{(1+e^a)^2}{n e^a} \frac{e^a}{(1+e^a)^2} \\
+&amp;= \pi(1-\pi) \frac{1}{n\pi(1-\pi)} \pi(1-\pi) \\
+&amp;= \frac{\pi(1-\pi)}{n}, \\
+\text{SE}(F(\hat\theta)) &amp;= \sqrt{\text{Var}(F(\hat\theta))} \\
+&amp;= \sqrt{\frac{\pi(1-\pi)}{n}}.
+\end{aligned}
+\]</span></p>
+<p><strong>3. Suppose the maximum likelihood estimate of a probability <span class="math inline">\(\pi\)</span> is <span class="math inline">\(\hat\pi = 0.75\)</span> (based on <span class="math inline">\(n = 10\)</span> observations). The (approximate) standard error of this estimate is <span class="math inline">\(SE(\hat\pi) \approx \sqrt{\frac{\hat\pi(1-\hat\pi)}{10}}\)</span>. What is the MLE of <span class="math inline">\(\log \pi\)</span> and what is the corresponding standard error.</strong></p>
+<p><em>Solution</em></p>
+<p>The MLE of <span class="math inline">\(\log \pi\)</span> equals</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{MLE}(\log \pi) &amp;= \log \text{MLE} (\pi) \\
+&amp;= \log 0.75 \\
+&amp;\approx -0.2877.
+\end{aligned}
+\]</span></p>
+<p>Additionally, the standard error equals</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{SE}(F(\hat\theta)) &amp;= \sqrt{\text{Var}(F(\hat\theta))} \\
+&amp;\approx \sqrt{\frac{\partial F(\hat\theta)}{\partial \theta'} (-\hat{H})^{-1} \frac{\partial F(\hat\theta)}{\partial \theta}} \\
+&amp;= \sqrt{\Bigg(1 - \frac{e^a}{1+e^a}\Bigg) \frac{n e^a}{(1 + e^a)^2} \Bigg(1 - \frac{e^a}{1+e^a}\Bigg)} \\
+&amp;= \sqrt{(1-\hat\pi)\frac{1}{n\hat\pi(1-\hat\pi)}(1-\hat\pi)} \\
+&amp;= \sqrt{\frac{1-\hat\pi}{n\hat\pi}} \\
+&amp;= \sqrt{\frac{0.25}{7.5}} \approx 0.1826.
+\end{aligned}
+\]</span></p>
 
 
 
