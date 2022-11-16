@@ -36,23 +36,29 @@ __Example: Multiple linear lasso regression__
 #| cache: true
 set.seed(1)
 
-N <- 1000
+N <- 10000
 P <- 100
-B <- runif(P)
+B <- c(1:10/5, rep(0, 90))
 
 S <- matrix(0.5, P, P)
 diag(S) <- 1
 X <- matrix(rnorm(N*P), N, P) %*% chol(S)
-Y <- X %*% B + rnorm(N, 0, 50)
+Y <- X %*% B + rnorm(N, 0, 10)
 
-cv_lasso <- glmnet::cv.glmnet(X, Y, alpha = 1, standardize = F)
-lasso <- glmnet::glmnet(X, Y, alpha = 1, standardize = F, lambda = cv_lasso$lambda.min)
+X <- scale(X)
+Y <- scale(Y)
+
+cv_lasso <- glmnet::cv.glmnet(X, Y, alpha = 1, standardize = F,
+                              intercept = FALSE)
+lasso <- glmnet::glmnet(X, Y, alpha = 1, standardize = F, 
+                        intercept = F,
+                        lambda = cv_lasso$lambda.min)
 
 
 MM_lasso <- function(X, Y, start, lambda, threshold, maxit, tol) {
-  X <- model.matrix(Y ~ X)
+
   b <- matrix(0, maxit, ncol(X))
-  b[1, ] <- c(0.5, start)
+  b[1, ] <- start
   
   t <- 1
   conv <- FALSE
@@ -69,13 +75,13 @@ MM_lasso <- function(X, Y, start, lambda, threshold, maxit, tol) {
 own_lasso <- MM_lasso(X = X, 
                       Y = Y, 
                       start = runif(rep(1, P)), 
-                      lambda = 2020 * cv_lasso$lambda.min, 
+                      lambda = 2*N*cv_lasso$lambda.min, 
                       threshold = 1e-7,
                       maxit = 500, 
                       tol = 1e-14)
 
-dplyr::bind_cols(glmnet = lasso$beta[1:10,],
-                 MM_lasso = own_lasso[nrow(own_lasso), 2:11, drop=F] |> c()) |>
+dplyr::bind_cols(glmnet = lasso$beta[1:15,],
+                 MM_lasso = own_lasso[nrow(own_lasso), 1:15, drop=F] |> c()) |>
   knitr::kable() |>
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.0.36">
+<meta name="generator" content="quarto-1.1.189">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -11,10 +11,15 @@
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-span.underline{text-decoration: underline;}
-div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -53,7 +58,7 @@ code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
 code span.at { color: #7d9029; } /* Attribute */
 code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
+code span.bu { color: #008000; } /* BuiltIn */
 code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
 code span.ch { color: #4070a0; } /* Char */
 code span.cn { color: #880000; } /* Constant */
@@ -66,7 +71,7 @@ code span.er { color: #ff0000; font-weight: bold; } /* Error */
 code span.ex { } /* Extension */
 code span.fl { color: #40a070; } /* Float */
 code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
+code span.im { color: #008000; font-weight: bold; } /* Import */
 code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 code span.kw { color: #007020; font-weight: bold; } /* Keyword */
 code span.op { color: #666666; } /* Operator */
@@ -215,11 +220,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </nav>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc">
+        <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#exercises" id="toc-exercises" class="nav-link active" data-scroll-target="#exercises"> <span class="header-section-number">8</span> Exercises</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link active" data-scroll-target="#exercises"><span class="toc-section-number">8</span>  Exercises</a></li>
   </ul>
 </nav>
     </div>
@@ -278,51 +283,57 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <p>We obtained the same solution.</p>
 <p><strong>Example: Multiple linear lasso regression</strong></p>
-<div class="cell" data-hash="chapter7_cache/html/unnamed-chunk-2_a1806d392bc7b5d77a66eae857f6cf02">
+<div class="cell" data-hash="chapter7_cache/html/unnamed-chunk-2_6271fa3433c05dfafdaa38175b84afbb">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>P <span class="ot">&lt;-</span> <span class="dv">100</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="fu">runif</span>(P)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span><span class="sc">/</span><span class="dv">5</span>, <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">90</span>))</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fl">0.5</span>, P, P)</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">diag</span>(S) <span class="ot">&lt;-</span> <span class="dv">1</span></span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(N<span class="sc">*</span>P), N, P) <span class="sc">%*%</span> <span class="fu">chol</span>(S)</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> X <span class="sc">%*%</span> B <span class="sc">+</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">50</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> X <span class="sc">%*%</span> B <span class="sc">+</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">10</span>)</span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>cv_lasso <span class="ot">&lt;-</span> glmnet<span class="sc">::</span><span class="fu">cv.glmnet</span>(X, Y, <span class="at">alpha =</span> <span class="dv">1</span>, <span class="at">standardize =</span> F)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>lasso <span class="ot">&lt;-</span> glmnet<span class="sc">::</span><span class="fu">glmnet</span>(X, Y, <span class="at">alpha =</span> <span class="dv">1</span>, <span class="at">standardize =</span> F, <span class="at">lambda =</span> cv_lasso<span class="sc">$</span>lambda.min)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">scale</span>(X)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> <span class="fu">scale</span>(Y)</span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>MM_lasso <span class="ot">&lt;-</span> <span class="cf">function</span>(X, Y, start, lambda, threshold, maxit, tol) {</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(Y <span class="sc">~</span> X)</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, maxit, <span class="fu">ncol</span>(X))</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  b[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.5</span>, start)</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  t <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  conv <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span>(<span class="sc">!</span>conv) {</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    t <span class="ot">&lt;-</span> t<span class="sc">+</span><span class="dv">1</span></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    D <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">1</span><span class="sc">/</span>(<span class="fu">abs</span>(b[t<span class="dv">-1</span>,]) <span class="sc">+</span> threshold))</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    b[t, ] <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X <span class="sc">+</span> lambda<span class="sc">/</span><span class="dv">2</span> <span class="sc">*</span> D) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> Y</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (t <span class="sc">==</span> maxit <span class="sc">|</span> <span class="fu">sum</span>(<span class="fu">abs</span>(b[t] <span class="sc">-</span> b[t<span class="dv">-1</span>])) <span class="sc">&lt;</span> tol) conv <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(b[<span class="dv">1</span><span class="sc">:</span>t,],<span class="dv">5</span>)</span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>own_lasso <span class="ot">&lt;-</span> <span class="fu">MM_lasso</span>(<span class="at">X =</span> X, </span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>                      <span class="at">Y =</span> Y, </span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>                      <span class="at">start =</span> <span class="fu">runif</span>(<span class="fu">rep</span>(<span class="dv">1</span>, P)), </span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>                      <span class="at">lambda =</span> <span class="dv">2020</span> <span class="sc">*</span> cv_lasso<span class="sc">$</span>lambda.min, </span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>                      <span class="at">threshold =</span> <span class="fl">1e-7</span>,</span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>                      <span class="at">maxit =</span> <span class="dv">500</span>, </span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>                      <span class="at">tol =</span> <span class="fl">1e-14</span>)</span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">bind_cols</span>(<span class="at">glmnet =</span> lasso<span class="sc">$</span>beta[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,],</span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>                 <span class="at">MM_lasso =</span> own_lasso[<span class="fu">nrow</span>(own_lasso), <span class="dv">2</span><span class="sc">:</span><span class="dv">11</span>, <span class="at">drop=</span>F] <span class="sc">|&gt;</span> <span class="fu">c</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>cv_lasso <span class="ot">&lt;-</span> glmnet<span class="sc">::</span><span class="fu">cv.glmnet</span>(X, Y, <span class="at">alpha =</span> <span class="dv">1</span>, <span class="at">standardize =</span> F,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>                              <span class="at">intercept =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>lasso <span class="ot">&lt;-</span> glmnet<span class="sc">::</span><span class="fu">glmnet</span>(X, Y, <span class="at">alpha =</span> <span class="dv">1</span>, <span class="at">standardize =</span> F, </span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>                        <span class="at">intercept =</span> F,</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>                        <span class="at">lambda =</span> cv_lasso<span class="sc">$</span>lambda.min)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>MM_lasso <span class="ot">&lt;-</span> <span class="cf">function</span>(X, Y, start, lambda, threshold, maxit, tol) {</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, maxit, <span class="fu">ncol</span>(X))</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  b[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> start</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  t <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  conv <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span>(<span class="sc">!</span>conv) {</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    t <span class="ot">&lt;-</span> t<span class="sc">+</span><span class="dv">1</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    D <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">1</span><span class="sc">/</span>(<span class="fu">abs</span>(b[t<span class="dv">-1</span>,]) <span class="sc">+</span> threshold))</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    b[t, ] <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X <span class="sc">+</span> lambda<span class="sc">/</span><span class="dv">2</span> <span class="sc">*</span> D) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> Y</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (t <span class="sc">==</span> maxit <span class="sc">|</span> <span class="fu">sum</span>(<span class="fu">abs</span>(b[t] <span class="sc">-</span> b[t<span class="dv">-1</span>])) <span class="sc">&lt;</span> tol) conv <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(b[<span class="dv">1</span><span class="sc">:</span>t,],<span class="dv">5</span>)</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>own_lasso <span class="ot">&lt;-</span> <span class="fu">MM_lasso</span>(<span class="at">X =</span> X, </span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>                      <span class="at">Y =</span> Y, </span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>                      <span class="at">start =</span> <span class="fu">runif</span>(<span class="fu">rep</span>(<span class="dv">1</span>, P)), </span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>                      <span class="at">lambda =</span> <span class="dv">2</span><span class="sc">*</span>N<span class="sc">*</span>cv_lasso<span class="sc">$</span>lambda.min, </span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>                      <span class="at">threshold =</span> <span class="fl">1e-7</span>,</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>                      <span class="at">maxit =</span> <span class="dv">500</span>, </span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>                      <span class="at">tol =</span> <span class="fl">1e-14</span>)</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">bind_cols</span>(<span class="at">glmnet =</span> lasso<span class="sc">$</span>beta[<span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>,],</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>                 <span class="at">MM_lasso =</span> own_lasso[<span class="fu">nrow</span>(own_lasso), <span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>, <span class="at">drop=</span>F] <span class="sc">|&gt;</span> <span class="fu">c</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
@@ -334,18 +345,54 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
  </thead>
 <tbody>
   <tr>
+   <td style="text-align:right;"> 0.0023482 </td>
+   <td style="text-align:right;"> 0.00202 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0136856 </td>
+   <td style="text-align:right;"> 0.01325 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0226324 </td>
+   <td style="text-align:right;"> 0.02220 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0403210 </td>
+   <td style="text-align:right;"> 0.03987 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0572259 </td>
+   <td style="text-align:right;"> 0.05680 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0715446 </td>
+   <td style="text-align:right;"> 0.07115 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.1105939 </td>
+   <td style="text-align:right;"> 0.11025 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.1172435 </td>
+   <td style="text-align:right;"> 0.11695 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.1465717 </td>
+   <td style="text-align:right;"> 0.14635 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.1235894 </td>
+   <td style="text-align:right;"> 0.12347 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0076866 </td>
+   <td style="text-align:right;"> 0.00769 </td>
+  </tr>
+  <tr>
    <td style="text-align:right;"> 0.0000000 </td>
    <td style="text-align:right;"> 0.00000 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 4.9014359 </td>
-   <td style="text-align:right;"> 4.88475 </td>
-  </tr>
-  <tr>
-   <td style="text-align:right;"> 0.0355620 </td>
-   <td style="text-align:right;"> 0.05522 </td>
-  </tr>
-  <tr>
    <td style="text-align:right;"> 0.0000000 </td>
    <td style="text-align:right;"> 0.00000 </td>
   </tr>
@@ -354,24 +401,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
    <td style="text-align:right;"> 0.00000 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 1.1693791 </td>
-   <td style="text-align:right;"> 1.15089 </td>
-  </tr>
-  <tr>
-   <td style="text-align:right;"> 0.2945365 </td>
-   <td style="text-align:right;"> 0.25930 </td>
-  </tr>
-  <tr>
    <td style="text-align:right;"> 0.0000000 </td>
    <td style="text-align:right;"> 0.00000 </td>
-  </tr>
-  <tr>
-   <td style="text-align:right;"> 0.0000000 </td>
-   <td style="text-align:right;"> 0.00000 </td>
-  </tr>
-  <tr>
-   <td style="text-align:right;"> 0.4112389 </td>
-   <td style="text-align:right;"> 0.40503 </td>
   </tr>
 </tbody>
 </table>
@@ -398,8 +429,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <section id="exercises" class="level1" data-number="8">
 <h1 data-number="8"><span class="header-section-number">8</span> Exercises</h1>
-<p><strong>1. Write a script to generate data with the following structure: <span class="math inline">\(p = 9\)</span> predictors with the following covariance structure</strong></p>
-<p><span class="math display">\[
+<p><strong>1. Write a script to generate data with the following structure: <span class="math inline">\(p = 9\)</span> predictors with the following covariance structure</strong> <span class="math display">\[
 \boldsymbol{R} = \begin{pmatrix}
 1 &amp; 0.8 &amp; 0.7 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
 0.8 &amp; 1 &amp; 0.6 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
@@ -411,8 +441,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 0   &amp; 0   &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0.2 &amp; 1 &amp; 0.3 \\
 0   &amp; 0   &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0.4 &amp; 0.3 &amp; 1
 \end{pmatrix}
-\]</span></p>
-<p>__and <span class="math inline">\(y_i = \boldsymbol{x}_i'\boldsymbol{\beta} + e_i\)</span> with <span class="math inline">\(\boldsymbol{\beta} = [0,1,2,0,0,3,1.5,1.5,0]'\)</span> and <span class="math inline">\(e_i \sim \mathcal{N}(0,10)\)</span>.</p>
+\]</span> __and <span class="math inline">\(y_i = \boldsymbol{x}_i'\boldsymbol{\beta} + e_i\)</span> with <span class="math inline">\(\boldsymbol{\beta} = [0,1,2,0,0,3,1.5,1.5,0]'\)</span> and <span class="math inline">\(e_i \sim \mathcal{N}(0,10)\)</span>.</p>
 <p><em>Solution</em></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
@@ -559,7 +588,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   for (var i=0; i<noterefs.length; i++) {
     const ref = noterefs[i];
     tippyHover(ref, function() {
-      let href = ref.getAttribute('href');
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
