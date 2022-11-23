@@ -1,0 +1,160 @@
+# Expectation-Maximization algorithm
+
+Consider the classical example from Dempster, Laird and Rubin (1977). They give the complete (but unobserved) multinomial data model:
+
+| $Z_{11}$ | $Z_{12}$ | $Z_2$ | $Z_3$ | $Z_4$ |
+| -------- | -------- | ----- | ----- | ----- |
+| $\frac12$ | $\frac14\theta$ | $\frac14 (1-\theta)$ | $\frac14 (1-\theta)$ | $\frac14\theta$ |
+
+Additionally, we have the observed, but coarsened, version of the data that is called $Y$, which corresponding observed counts per category:
+
+| $Y_1$ | $Y_2$ | $Y_3$ | $Y_4$ |
+| -------- | -------- | ----- | ----- | ----- |
+| $\frac12 +\frac14\theta$ | $\frac14 (1-\theta)$ | $\frac14 (1-\theta)$ | $\frac14\theta$ |
+| $125$ | $18$ | $20$ | $34$ |
+
+There are now (at least) three options to calculate the likelihood of the parameter $\theta$ for the complete data $Z$: (1) calculating the likelihood directly and obtaining a non-iterative solution, (2) calculating the likelihood and obtaining an iterative solution, (3) applying the EM algorithm. We will walk through each of these steps. 
+
+__Direct calculation; obtaining a non-iterative solution__
+
+The log-likelihood for the complete data is defined as
+$$
+\begin{aligned}
+\ell_c(\theta) =& \sum^5_{i=1} Z_j \log[\pi^c_j(\theta)] \\
+=& Z_{11}(125; \theta) \log \Big(\frac{1}{2}\Big)
+ + Z_{12}(125;\theta) \log \Big(\frac14\theta\Big) \\
+&+ 18 \log \Big(\frac14(1-\theta)\Big) 
+ + 20 \log \Big(\frac14(1-\theta)\Big)
+ + 34 \log\Big(\frac14\theta\Big),
+\end{aligned}
+$$
+and the log-likelihood for the observed data is defined as
+$$
+\begin{aligned}
+\ell_c(\theta) =& \sum^4_{i=1} Y_j \log[\pi_j(\theta)] \\
+=& 125 \log \Big(\frac12 + \frac14\theta \Big) 
+ + 18 \log \Big(\frac14(1-\theta)\Big) \\
+&+ 20 \log \Big(\frac14(1-\theta)\Big)
+ + 34 \log\Big(\frac14\theta\Big).
+\end{aligned}
+$$
+
+Calculating the first derivative of the observed-data log-likelihood yields
+$$
+S(\theta) = \frac{y_1}{2+\theta} - \frac{y_2}{1-\theta}
+          - \frac{y_3}{1-\theta} + \frac{y_4}{\theta}
+          = 0.
+$$
+The Score function can be rewritten as a quadratic equation
+$$
+S(\theta) = -197 \cdot \theta^2 + 15 \cdot \theta + 68 = 0,
+$$
+which yields two solutions
+$$
+\hat\theta = 0.6268 ~ \lor \hat\theta = -0.5507.
+$$
+Of course, the second one is not possible, so we obtain 
+$$
+\hat \theta = 0.626821497871.
+$$
+
+__Iterative solution of the observed likelihood__
+
+We first define a coarsening matrix that relates the observed data to the complete data
+$$
+C = 
+\begin{pmatrix}
+1 & 1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 1
+\end{pmatrix},
+$$
+such that $\boldsymbol{\pi}(\theta) = C \boldsymbol{\pi}^c(\theta)$. Subsequently, we can write
+$$
+\boldsymbol\pi^c(\theta) = 
+\begin{pmatrix} 
+\frac12 \\ 0 \\ \frac14 \\ \frac14 \\ 0
+\end{pmatrix} + \begin{pmatrix}
+0 \\ \frac14 \\ -\frac14 \\ -\frac14 \\ \frac14
+\end{pmatrix} \theta = \boldsymbol{X_0} + \boldsymbol{X_1} \theta.
+$$
+As a next step, we can write the score function as 
+$$
+S(\theta) = \boldsymbol{X}'_1 C'(C~ \text{cov}(\boldsymbol{Z})C')^-
+           (\boldsymbol{Y} - nC\boldsymbol{\pi}^c),
+$$
+and the Fisher information matrix equals
+$$
+\mathcal{I}(\theta) = n \boldsymbol{X}'_1 C'(C ~ \text{cov}(\boldsymbol{Z})C')^- C\boldsymbol{X}_1,
+$$
+where $(C ~ \text{cov}(Z) C')^-$ denotes the generalized inverse of the covariance matrix of $\boldsymbol{Y}$. The updating algorithm is defined as
+$$
+\theta^{(t+1)} = \theta^{(t)} + S(\theta^{(t)})/\mathcal{I}(\theta^{(t)}).
+$$
+
+```{r}
+X0 <- c(1/2, 0, 1/4, 1/4, 0)
+X1 <- c(0, 1/4, -1/4, -1/4, 1/4)
+
+Z <- function(th) c(Z11=1/2, Z12=th/4, Z2=(1-th)/4, Z3=(1-th)/4, Z4=th/4)
+covZ <- function(th, n) n * (diag(Z(th)) - Z(th) %*% t(Z(th)))
+pi_c <- function(theta, X0, X1) X0 + X1 * theta
+
+Y <- c(125, 18, 20, 34)
+
+C <- matrix(c(1,1,0,0,0,
+              0,0,1,0,0,
+              0,0,0,1,0,
+              0,0,0,0,1), 4, 5, byrow=T)
+
+conv <- F; maxit <- 50; t <- 1
+theta <- numeric(maxit); theta[1] <- 0.5
+n <- sum(Y)
+
+X1tCt <- t(X1) %*% t(C)
+
+while(!conv) {
+  
+  t <- t+1
+  
+  CZCtinv <- matlib::Ginv(C %*% covZ(theta[t-1], n) %*% t(C))
+  YnCpi <- (Y - n * C %*% pi_c(theta[t-1], X0, X1))
+  
+  S <- X1tCt %*% CZCtinv %*% YnCpi
+  H <- n * X1tCt %*% CZCtinv %*% t(X1tCt)
+  theta[t] <- theta[t-1] + S / H
+  
+  if (t == maxit | abs(theta[t] - theta[t-1]) < 1e-20) {
+    conv <- T
+  }
+}
+theta[1:t]
+```
+
+__Expectation-Maximization algorithm__
+
+```{r}
+EM <- function(start, Y, maxit, tol) {
+  n <- sum(Y)
+  theta <- numeric(maxit)
+  theta[1] <- start
+  t <- 1
+  conv <- F
+  Z <- function(theta, Y) {
+    c(250/(2+theta), 125*theta/(2+theta), Y[2:4]/n)
+  }
+  
+  while(!conv) {
+    t <- t+1
+    Z <- c(250/(2+theta[t-1]), 125*theta[t-1]/(2+theta[t-1]), Y[2:4])
+    theta[t] <- (Z[2] + Z[5]) / sum(Z[2:5])
+    if (t == maxit | abs(theta[t] - theta[t-1]) < tol) conv <- T
+  }
+  theta[1:t]
+}
+
+EM(0.5, Y, 50, 1e-50)
+```
+
+
