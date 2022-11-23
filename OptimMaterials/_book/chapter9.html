@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.0.36">
+<meta name="generator" content="quarto-1.1.189">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -11,10 +11,15 @@
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-span.underline{text-decoration: underline;}
-div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -53,7 +58,7 @@ code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
 code span.at { color: #7d9029; } /* Attribute */
 code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
+code span.bu { color: #008000; } /* BuiltIn */
 code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
 code span.ch { color: #4070a0; } /* Char */
 code span.cn { color: #880000; } /* Constant */
@@ -66,7 +71,7 @@ code span.er { color: #ff0000; font-weight: bold; } /* Error */
 code span.ex { } /* Extension */
 code span.fl { color: #40a070; } /* Float */
 code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
+code span.im { color: #008000; font-weight: bold; } /* Import */
 code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 code span.kw { color: #007020; font-weight: bold; } /* Keyword */
 code span.op { color: #666666; } /* Operator */
@@ -88,7 +93,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./references.html" rel="next">
+<link href="./chapter10.html" rel="next">
 <link href="./chapter8.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -204,6 +209,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./chapter10.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Numerical integration</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter11.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Expectation-Maximization algorithm</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./references.html" class="sidebar-item-text sidebar-link">References</a>
   </div>
 </li>
@@ -233,15 +248,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header>
 
-<p><strong>1. Continuation of exercise 6 from Chapter 3 and exercise 6 from Chapter 5. Take the data and the logistic regression model. The point estimates are</strong></p>
-<p><span class="math display">\[
+<p><strong>1. Continuation of exercise 6 from Chapter 3 and exercise 6 from Chapter 5. Take the data and the logistic regression model. The point estimates are</strong> <span class="math display">\[
 \begin{pmatrix} \hat{\alpha} \\ \hat{\beta} \end{pmatrix} =
 \begin{pmatrix} - 3.89 \\ 2.18 \end{pmatrix}.
-\]</span></p>
-<p><strong>Obtain the asymptotic variance-covariance matrix and standard errors for <span class="math inline">\(\hat{\alpha}\)</span> and <span class="math inline">\(\hat{\beta}\)</span>, and implement a test for <span class="math inline">\(H_0: \alpha = 1\)</span> and <span class="math inline">\(\beta = 0\)</span>.</strong></p>
+\]</span> <strong>Obtain the asymptotic variance-covariance matrix and standard errors for <span class="math inline">\(\hat{\alpha}\)</span> and <span class="math inline">\(\hat{\beta}\)</span>, and implement a test for <span class="math inline">\(H_0: \alpha = 1\)</span> and <span class="math inline">\(\beta = 0\)</span>.</strong></p>
 <p><em>Solution</em></p>
-<p>Recall that the first- and second-order derivatives are defined as</p>
-<p><span class="math display">\[
+<p>Recall that the first- and second-order derivatives are defined as <span class="math display">\[
 \begin{aligned}
 \nabla \ell = S(\alpha, \beta) &amp;=
 \begin{pmatrix}
@@ -359,9 +371,7 @@ p - n \frac{e^\alpha}{1 + e^\alpha} \\
 \implies 0 &amp;= p - n\pi \\
 \implies \pi &amp;= \frac{p}{n}
 \end{aligned}
-\]</span></p>
-<p>Using the delta method to obtain the standard error yields</p>
-<p><span class="math display">\[
+\]</span> Using the delta method to obtain the standard error yields <span class="math display">\[
 \begin{aligned}
 \text{Var}(F(\hat\theta)) &amp;= \frac{\partial F(\hat\theta)}{\partial \theta'} (-\hat{H})^{-1} \frac{\partial F(\hat\theta)}{\partial \theta} \\
 &amp;= \frac{e^a}{(1+e^a)^2} \frac{(1+e^a)^2}{n e^a} \frac{e^a}{(1+e^a)^2} \\
@@ -373,16 +383,13 @@ p - n \frac{e^\alpha}{1 + e^\alpha} \\
 \]</span></p>
 <p><strong>3. Suppose the maximum likelihood estimate of a probability <span class="math inline">\(\pi\)</span> is <span class="math inline">\(\hat\pi = 0.75\)</span> (based on <span class="math inline">\(n = 10\)</span> observations). The (approximate) standard error of this estimate is <span class="math inline">\(SE(\hat\pi) \approx \sqrt{\frac{\hat\pi(1-\hat\pi)}{10}}\)</span>. What is the MLE of <span class="math inline">\(\log \pi\)</span> and what is the corresponding standard error.</strong></p>
 <p><em>Solution</em></p>
-<p>The MLE of <span class="math inline">\(\log \pi\)</span> equals</p>
-<p><span class="math display">\[
+<p>The MLE of <span class="math inline">\(\log \pi\)</span> equals <span class="math display">\[
 \begin{aligned}
 \text{MLE}(\log \pi) &amp;= \log \text{MLE} (\pi) \\
 &amp;= \log 0.75 \\
 &amp;\approx -0.2877.
 \end{aligned}
-\]</span></p>
-<p>Additionally, the standard error equals</p>
-<p><span class="math display">\[
+\]</span> Additionally, the standard error equals <span class="math display">\[
 \begin{aligned}
 \text{SE}(F(\hat\theta)) &amp;= \sqrt{\text{Var}(F(\hat\theta))} \\
 &amp;\approx \sqrt{\frac{\partial F(\hat\theta)}{\partial \theta'} (-\hat{H})^{-1} \frac{\partial F(\hat\theta)}{\partial \theta}} \\
@@ -465,7 +472,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   for (var i=0; i<noterefs.length; i++) {
     const ref = noterefs[i];
     tippyHover(ref, function() {
-      let href = ref.getAttribute('href');
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
@@ -500,8 +508,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./references.html" class="pagination-link">
-        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./chapter10.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Numerical integration</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.0.36">
+<meta name="generator" content="quarto-1.1.189">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -11,10 +11,15 @@
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-span.underline{text-decoration: underline;}
-div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -53,7 +58,7 @@ code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
 code span.at { color: #7d9029; } /* Attribute */
 code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
+code span.bu { color: #008000; } /* BuiltIn */
 code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
 code span.ch { color: #4070a0; } /* Char */
 code span.cn { color: #880000; } /* Constant */
@@ -66,7 +71,7 @@ code span.er { color: #ff0000; font-weight: bold; } /* Error */
 code span.ex { } /* Extension */
 code span.fl { color: #40a070; } /* Float */
 code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
+code span.im { color: #008000; font-weight: bold; } /* Import */
 code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 code span.kw { color: #007020; font-weight: bold; } /* Keyword */
 code span.op { color: #666666; } /* Operator */
@@ -207,6 +212,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./chapter10.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Numerical integration</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter11.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Expectation-Maximization algorithm</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./references.html" class="sidebar-item-text sidebar-link">References</a>
   </div>
 </li>
@@ -215,11 +230,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </nav>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc">
+        <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#exercises-6.5-in-the-notes" id="toc-exercises-6.5-in-the-notes" class="nav-link active" data-scroll-target="#exercises-6.5-in-the-notes"> <span class="header-section-number">6.1</span> Exercises (6.5 in the notes)</a></li>
+  <li><a href="#exercises-6.5-in-the-notes" id="toc-exercises-6.5-in-the-notes" class="nav-link active" data-scroll-target="#exercises-6.5-in-the-notes"><span class="toc-section-number">6.1</span>  Exercises (6.5 in the notes)</a></li>
   </ul>
 </nav>
     </div>
@@ -289,38 +304,29 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </table>
 <p><strong>A Poisson regression model is put forward for these data, with linear predictor <span class="math inline">\(\theta_i = \beta_0 + \beta_1 x_i\)</span>. Starting from <span class="math inline">\(\boldsymbol{\beta}^{(0)} = (0,0)'\)</span>, do the following: Derive the likelihood equations. Can they be solved analytically in this case? Perform the first five steps of the Newton-Raphson algorithm to find the maximum of the likelihood. Put your results in a table with as columns: Iteration number, current point, and log-likelihood value. Do the same for Fisher-scoring.</strong></p>
 <p><em>Solution</em></p>
-<p>The Poisson model yields</p>
-<p><span class="math display">\[
+<p>The Poisson model yields <span class="math display">\[
 Y \sim \text{Poisson}(\lambda),
 ~ \text{with} ~
 f(y|\theta, \phi) = \frac{e^{-\lambda}\lambda^y}{y!},
-\]</span></p>
-<p>and thus the likelihood <span class="math inline">\(L\)</span> and log-likelihood <span class="math inline">\(\ell\)</span> are defined as</p>
-<p><span class="math display">\[
+\]</span> and thus the likelihood <span class="math inline">\(L\)</span> and log-likelihood <span class="math inline">\(\ell\)</span> are defined as <span class="math display">\[
 \begin{aligned}
 L &amp;= \prod^6_{i=1} \frac{e^{-\lambda}\lambda^{y_i}}{y_i!} = \frac{e^{-e^{(\beta_0 + \beta_1 x_i)}} e^{(\beta_0 \beta_1 x_i)y_i}}{y_i!} \\
 \ell &amp;= \sum^6_{i=1} y_i \log \lambda - \lambda - \log (y_i!) \\
 &amp;= \sum^6_{i=1} y_i(\beta_0 + \beta_1 x_i) - e^{(\beta_0 + \beta_1 x_i)} - \log (y_i!).
 \end{aligned}
-\]</span></p>
-<p>Accordingly, the first-order partial derivatives are defined as</p>
-<p><span class="math display">\[
+\]</span> Accordingly, the first-order partial derivatives are defined as <span class="math display">\[
 \begin{aligned}
 \frac{\partial \ell}{\partial \beta_0} &amp;=
 \sum^6_{i=1} y_i - e^{(\beta_0 - \beta_1 x_i)}, \\
 \frac{\partial \ell}{\partial \beta_1} &amp;=
 \sum^6_{i=1} x_i y_i - x_i e^{(\beta_0 - \beta_1 x_i)},
 \end{aligned}
-\]</span></p>
-<p>and hence the Gradient (i.e., Score equation) can be written as</p>
-<p><span class="math display">\[
+\]</span> and hence the Gradient (i.e., Score equation) can be written as <span class="math display">\[
 \nabla \ell(\beta_0, \beta_1) = S(\theta) = \begin{pmatrix}
 \sum^6_{i=1} y_i - e^{(\beta_0 - \beta_1 x_i)}, \\
 \sum^6_{i=1} x_i (y_i - e^{(\beta_0 - \beta_1 x_i)}).
 \end{pmatrix}
-\]</span></p>
-<p>Additionally, the second-order partial derivates are defined as</p>
-<p><span class="math display">\[
+\]</span> Additionally, the second-order partial derivates are defined as <span class="math display">\[
 \begin{aligned}
 \frac{\partial^2 \ell}{\partial \beta_0^2} &amp;=
 \sum^6_{i=1} - e^{(\beta_0 - \beta_1 x_i)}, \\
@@ -329,41 +335,31 @@ L &amp;= \prod^6_{i=1} \frac{e^{-\lambda}\lambda^{y_i}}{y_i!} = \frac{e^{-e^{(\b
 \frac{\partial^2 \ell}{\partial \beta_0 \partial \beta_1} &amp;=
 \sum^6_{i=1} - x_i e^{(\beta_0 - \beta_1 x_i)}, \\
 \end{aligned}
-\]</span></p>
-<p>such that the Hessian <span class="math inline">\(\nabla^2 \ell(\beta_0, \beta_1)\)</span> can be written as</p>
-<p><span class="math display">\[
+\]</span> such that the Hessian <span class="math inline">\(\nabla^2 \ell(\beta_0, \beta_1)\)</span> can be written as <span class="math display">\[
 \nabla^2 \ell(\beta_0, \beta_1) =
 \begin{pmatrix}
 \sum^6_{i=1} - e^{(\beta_0 - \beta_1 x_i)} &amp; \\
 \sum^6_{i=1} - x_i e^{(\beta_0 - \beta_1 x_i)} &amp;
 \sum^6_{i=1} - x_i^2 e^{(\beta_0 - \beta_1 x_i)}
 \end{pmatrix}.
-\]</span></p>
-<p>Setting the first-order partial derivatives to zero and filling in the data yields</p>
-<p><span class="math display">\[
+\]</span> Setting the first-order partial derivatives to zero and filling in the data yields <span class="math display">\[
 S(\theta) = \begin{pmatrix}
 68 - 3e^{(\beta_0 + \beta_1)} - 3e^{(\beta_0)} \\
 44 - 3e^{(\beta_0 + \beta_1)}
 \end{pmatrix} = \begin{pmatrix} 0 \\ 0 \end{pmatrix}.
-\]</span></p>
-<p>Hence, we have</p>
-<p><span class="math display">\[
+\]</span> Hence, we have <span class="math display">\[
 \begin{aligned}
 44 - 3e^{(\beta_0 + \beta_1)} &amp;= 0 \\
 3e^{(\beta_0 + \beta_1)} &amp;= 44,
 \end{aligned}
-\]</span></p>
-<p>and thus</p>
-<p><span class="math display">\[
+\]</span> and thus <span class="math display">\[
 \begin{aligned}
 68 - 3e^{(\beta_0)} &amp;= 44 \\
 3e^{(\beta_0)} &amp;= 24 \\
 e^{(\beta_0)} &amp;= 8 \\
 \beta_0 &amp;= \log 8 \approx 2.0794.
 \end{aligned}
-\]</span></p>
-<p>Filling this into the previous equation yields</p>
-<p><span class="math display">\[
+\]</span> Filling this into the previous equation yields <span class="math display">\[
 \begin{aligned}
 3e^{(\log 8 + \beta_1)} &amp;= 44 \\
 \log 44 - \log 3 - \log 8 &amp;= \beta_1 \approx 0.6061.
@@ -555,35 +551,23 @@ e^{(\beta_0)} &amp;= 8 \\
 </div>
 </div>
 <p><strong>Fisher scoring</strong></p>
-<p>Note that in this case, the expected Hessian equals</p>
-<p><span class="math display">\[
+<p>Note that in this case, the expected Hessian equals <span class="math display">\[
 - x_i' \frac{\partial \mu_i}{\partial \theta_i} \nu_i^{-1} \frac{\partial \mu_i}{\partial \theta_i} x_i.
-\]</span></p>
-<p>Given that</p>
-<p><span class="math display">\[
+\]</span> Given that <span class="math display">\[
 \frac{\partial \mu_i}{\partial \theta_i} = \frac{\partial \mu_i}{\partial \theta_i}
 \Bigg(\exp\{\theta_i\}\Bigg) = \exp{\theta_i},
-\]</span></p>
-<p>and</p>
-<p><span class="math display">\[
+\]</span> and <span class="math display">\[
 \nu_i^{-1} = \frac{1}{\exp\{\theta_i\}},
-\]</span></p>
-<p>it follows that</p>
-<p><span class="math display">\[
+\]</span> it follows that <span class="math display">\[
 \frac{\partial \mu_i}{\partial \theta_i} \nu_i^{-1} \frac{\partial \mu_i}{\partial \theta_i} = \exp\{\theta_i\} = \exp\{X\beta\}.
-\]</span></p>
-<p>Hence, for the expected Hessian, we have</p>
-<p><span class="math display">\[
+\]</span> Hence, for the expected Hessian, we have <span class="math display">\[
 \mathcal{H} =
 E\Bigg(\frac{\partial^2 \ell}{\partial \beta \partial \beta'}\Bigg) =
 X' \text{diag}(\exp{X\beta})X,
-\]</span></p>
-<p>which is equal to the Hessian matrix <span class="math inline">\(H(\beta)\)</span>, and thus Fisher scoring and Newton-Raphson are equivalent in this case.</p>
-<p><strong>2. Assume the function</strong></p>
-<p><span class="math display">\[
+\]</span> which is equal to the Hessian matrix <span class="math inline">\(H(\beta)\)</span>, and thus Fisher scoring and Newton-Raphson are equivalent in this case.</p>
+<p><strong>2. Assume the function</strong> <span class="math display">\[
 f(x_1, x_2) = 8x_1 + 12x_2 + x_1^2 - 2x_2^2.
-\]</span></p>
-<p><strong>Sketch the contour lines of <span class="math inline">\(f(x_1, x_2)\)</span>, and find the stationary point of <span class="math inline">\(f(x_1, x_2)\)</span>. Does this point correspond to a minimum, a maximum, or something else?</strong></p>
+\]</span> <strong>Sketch the contour lines of <span class="math inline">\(f(x_1, x_2)\)</span>, and find the stationary point of <span class="math inline">\(f(x_1, x_2)\)</span>. Does this point correspond to a minimum, a maximum, or something else?</strong></p>
 <p><em>Solution</em></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
@@ -605,8 +589,7 @@ f(x_1, x_2) = 8x_1 + 12x_2 + x_1^2 - 2x_2^2.
 <p><img src="chapter6_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>The first- and second-order partial derivatives of <span class="math inline">\(f(x_1, x_2)\)</span> are given by</p>
-<p><span class="math display">\[
+<p>The first- and second-order partial derivatives of <span class="math inline">\(f(x_1, x_2)\)</span> are given by <span class="math display">\[
 \begin{aligned}
 f(x1, x2) &amp;= 8x_1 + 12x_2 + x_1^2 - 2x_2^2, \\
 \frac{\partial f}{\partial x_1} &amp;= 8 + 2x_1, \\
@@ -615,13 +598,10 @@ f(x1, x2) &amp;= 8x_1 + 12x_2 + x_1^2 - 2x_2^2, \\
 \frac{\partial^2 f}{\partial x_2^2} &amp;= -4, \\
 \frac{\partial^2 f}{\partial x_1 \partial x_2} &amp;= 0. \\
 \end{aligned}
-\]</span></p>
-<p>The stationary point of <span class="math inline">\(f(x_1, x_2)\)</span> is <span class="math inline">\(f(-4, 3)\)</span>, which is a saddle point.</p>
-<p><strong>3. Consider the function</strong></p>
-<p><span class="math display">\[
+\]</span> The stationary point of <span class="math inline">\(f(x_1, x_2)\)</span> is <span class="math inline">\(f(-4, 3)\)</span>, which is a saddle point.</p>
+<p><strong>3. Consider the function</strong> <span class="math display">\[
 f(x_1, x_2) = 100(x_2 - x_1^2)^2 + (1 - x_1)^2.
-\]</span></p>
-<p><strong>Show that (1, 1)’ is a local minimizer of this function. Also, starting from the point <span class="math inline">\(\boldsymbol{x}^{(0)}=(0,0)'\)</span>, perform the first five steps of the steepest descent and the Newton-Raphson algorithm to minimize the function. Put your results in a table with as columns: iteration number, current point, function value and gradient.</strong></p>
+\]</span> <strong>Show that (1, 1)’ is a local minimizer of this function. Also, starting from the point <span class="math inline">\(\boldsymbol{x}^{(0)}=(0,0)'\)</span>, perform the first five steps of the steepest descent and the Newton-Raphson algorithm to minimize the function. Put your results in a table with as columns: iteration number, current point, function value and gradient.</strong></p>
 <p><em>Solution</em></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fx1x2 <span class="ot">&lt;-</span> <span class="cf">function</span>(x1, x2) <span class="dv">100</span><span class="sc">*</span>(x2 <span class="sc">-</span> x1<span class="sc">^</span><span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> x1)<span class="sc">^</span><span class="dv">2</span></span>
@@ -639,8 +619,7 @@ f(x_1, x_2) = 100(x_2 - x_1^2)^2 + (1 - x_1)^2.
 <p><img src="chapter6_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Showing that the point <span class="math inline">\((1,1)'\)</span> is a local minimizer can be done by plugging the <span class="math inline">\((1,1)'\)</span> into the Gradient, and checking whether the Gradient equals zero,</p>
-<p><span class="math display">\[
+<p>Showing that the point <span class="math inline">\((1,1)'\)</span> is a local minimizer can be done by plugging the <span class="math inline">\((1,1)'\)</span> into the Gradient, and checking whether the Gradient equals zero, <span class="math display">\[
 \begin{aligned}
 f(x_1, x_2) &amp;= 100(x_2 - x_1^2)^2 + (1 - x_1)^2, \\
 \nabla f(x_1, x_2) &amp;= \begin{pmatrix}
@@ -651,9 +630,7 @@ f(x_1, x_2) &amp;= 100(x_2 - x_1^2)^2 + (1 - x_1)^2, \\
 200(1 - 1) \end{pmatrix} =
 \begin{pmatrix} 0 \\ 0 \end{pmatrix},
 \end{aligned}
-\]</span></p>
-<p>which shows that <span class="math inline">\((1,1)'\)</span> is a local minimizer. Moreover, the Hessian matrix is defined by</p>
-<p><span class="math display">\[
+\]</span> which shows that <span class="math inline">\((1,1)'\)</span> is a local minimizer. Moreover, the Hessian matrix is defined by <span class="math display">\[
 \nabla^2 f(x_1, x_2) = \begin{pmatrix}
 1200x_1^2 - 400x_2 + 2 &amp; -400x_1 \\
 -400x_1 &amp; 200 \end{pmatrix}
@@ -1062,22 +1039,17 @@ f(x_1, x_2) &amp;= 100(x_2 - x_1^2)^2 + (1 - x_1)^2, \\
 </div>
 <p><strong>4. Suppose for an individual during consecutive nights, it is recorded how loudly he snores (covariate <span class="math inline">\(x\)</span>) and whether he wakes up or not (the outcome <span class="math inline">\(Y\)</span>). Consider the following hypothetical data are collected: <span class="math inline">\(\boldsymbol{x} = (0,1,2,3,4,5)'\)</span> and <span class="math inline">\(\boldsymbol{y} = (0,1,0,1,1,1)'\)</span>. A logistic regression model is put forward for these data such that <span class="math inline">\(\text{logit}(\Pr(y_i = 1 | x_i)) = \text{logit}(\pi(x_i)) = \beta_0 + \beta_1 x_i\)</span>. Starting from <span class="math inline">\(\boldsymbol{\beta}^{(0)} = (0,0)'\)</span>, perform the first five steps of the Newton-Raphson algorithm to find the maximum of the likelihood. Put your results in a table with as columns: iteration number, current point and loglikelihood value. Do the same for iterative reweighted least squares.</strong></p>
 <p><em>Solution</em></p>
-<p>For logistic regression, the likelihood is defined as</p>
-<p><span class="math display">\[
+<p>For logistic regression, the likelihood is defined as <span class="math display">\[
 \begin{aligned}
 L &amp;= \prod^N_{i=1} \frac{e^{y_i(\beta_0 + \beta_1 x_i)}}{1 + e^{(\beta_0 + \beta_1x_i)}}, \\
 \ell &amp;= \sum^N_{i=1} y_i(\beta_0 + \beta_1x_i) - \log(1 + e^{(\beta_0 + \beta_1x_i)}).
 \end{aligned}
-\]</span></p>
-<p>Additionally, the Gradient is defined by</p>
-<p><span class="math display">\[
+\]</span> Additionally, the Gradient is defined by <span class="math display">\[
 \nabla \ell(\beta_0, \beta_1) = \begin{pmatrix}
 \sum^N_{i=1} y_i - \frac{e^{(\beta_0 + \beta_1 x_i)}}{1 + e^{(\beta_0 + \beta_1 x_i)}} \\
 \sum^N_{i=1}x_i (y_i - \frac{e^{(\beta_0 + \beta_1 x_i)}}{1 + e^{(\beta_0 + \beta_1 x_i)}})
 \end{pmatrix},
-\]</span></p>
-<p>while the Hessian is defined as</p>
-<p><span class="math display">\[
+\]</span> while the Hessian is defined as <span class="math display">\[
 \nabla^2 \ell(\beta_0, \beta_1) = \begin{pmatrix}
 - \sum^N_{i=1} \frac{e^{(\beta_0 + \beta_1 x_i)}}{(1 + e^{(\beta_0 + \beta_1 x_i)})^2} &amp;
 - \sum^N_{i=1}x_i \frac{e^{(\beta_0 + \beta_1 x_i)}}{(1 + e^{(\beta_0 + \beta_1 x_i)})^2} \\
@@ -1285,26 +1257,19 @@ Number of Fisher Scoring iterations: 5</code></pre>
 </div>
 </div>
 <p>And again, convergence is reached after five iterations!</p>
-<p><strong>5. Consider the function</strong></p>
-<p><span class="math display">\[
+<p><strong>5. Consider the function</strong> <span class="math display">\[
 f(x) = \frac{e^x}{(1 + e^x)^2}.
-\]</span></p>
-<p><strong>Using an iterative procedure of your liking, find the optimum of the function, and check whether it is a minimum or a maximum.</strong></p>
+\]</span> <strong>Using an iterative procedure of your liking, find the optimum of the function, and check whether it is a minimum or a maximum.</strong></p>
 <p><em>Solution</em></p>
-<p>First, calculate we calculate the derivatives.</p>
-<p><span class="math display">\[
+<p>First, calculate we calculate the derivatives. <span class="math display">\[
 \begin{aligned}
 f(x) &amp;= \frac{e^x}{(1 + e^x)^2}, \\
 f'(x) &amp;= \frac{e^x - e^{2x}}{(1+e^x)^3}, \\
 f''(x) &amp;= \frac{e^x - 4e^{2x} + e^{3x}}{(1+e^x)^4}.
 \end{aligned}
-\]</span></p>
-<p>We can first find the optimum analytically. Let’s first take the log of the function, which makes it easier to work with:</p>
-<p><span class="math display">\[
+\]</span> We can first find the optimum analytically. Let’s first take the log of the function, which makes it easier to work with: <span class="math display">\[
 \log f(x) = x - 2 \log (1+e^x).
-\]</span></p>
-<p>Subsequently, we take the derivative of <span class="math inline">\(\log f(x)\)</span> and set it equal to zero to find the optimum.</p>
-<p><span class="math display">\[
+\]</span> Subsequently, we take the derivative of <span class="math inline">\(\log f(x)\)</span> and set it equal to zero to find the optimum. <span class="math display">\[
 \begin{aligned}
 \frac{\partial f}{\partial x} = 1 - \frac{2e^x}{1+e^x} &amp;= 0, \\
 \implies \frac{2e^x}{1+e^x} &amp;= 1, \\
@@ -1312,8 +1277,7 @@ f''(x) &amp;= \frac{e^x - 4e^{2x} + e^{3x}}{(1+e^x)^4}.
 e^x &amp;= 1, \\
 x &amp;= 0.
 \end{aligned}
-\]</span></p>
-<p>So we know the solution must be <span class="math inline">\(x=0\)</span>. Doing the same steps using the Newton-Raphson algorithm yields</p>
+\]</span> So we know the solution must be <span class="math inline">\(x=0\)</span>. Doing the same steps using the Newton-Raphson algorithm yields</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fx <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="sc">-</span><span class="fu">exp</span>(x) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))<span class="sc">^</span><span class="dv">2</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>f1x <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="sc">-</span>(<span class="fu">exp</span>(x) <span class="sc">-</span> <span class="fu">exp</span>(<span class="dv">2</span><span class="sc">*</span>x)) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))<span class="sc">^</span><span class="dv">3</span></span>
@@ -1608,7 +1572,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   for (var i=0; i<noterefs.length; i++) {
     const ref = noterefs[i];
     tippyHover(ref, function() {
-      let href = ref.getAttribute('href');
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
