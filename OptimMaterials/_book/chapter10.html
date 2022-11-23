@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.189">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Optimization and Numerical Methods Solutions - 10&nbsp; Numerical integration</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./chapter11.html" rel="next">
+<link href="./chapter9.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Numerical integration</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Optimization and Numerical Methods Solutions</a> 
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Preface</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter1.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter2.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Motivating Problems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter3.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Basic tools</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter4.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">From non-iterative to iterative procedures</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter5.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Least squares</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter6.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Iteration-based Function Optimization</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter7.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">The MM algorithm with applications to regularized regression</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter8.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Constrained optimization</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter9.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Maximum Likelihood Estimation and Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter10.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Numerical integration</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chapter11.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Expectation-Maximization algorithm</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">References</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Numerical integration</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<p><strong>1. Assume the following integral</strong> <span class="math display">\[
+I = \int^\infty_{-\infty} \frac{e^x}{(1+e^x)^2} \cdot
+\frac{1}{\sqrt{2\pi}}e^{-\frac{1}{2}x^2} dx.
+\]</span> <strong>The true value of the integral can be assumed to be <span class="math inline">\(I = 0.20662096414...\)</span>. Below, we ask you to use several methods to approximate <span class="math inline">\(I\)</span> and compare their accuracy. It is advisable to put the results in a single table as to facilitate comparison between methods. Comment on these methods and on the results you find.</strong></p>
+<p><strong>a. Use Laplace’s method to approximate the integral.</strong></p>
+<p><em>Solution</em></p>
+<p>Laplace’s method yields that the integral <span class="math inline">\(f(z)\phi(z)\)</span> is approximated by a normal density. Note that <span class="math inline">\(\int f(z) \phi(z)dz\)</span> can be written as <span class="math inline">\(\int e^{h(z)}dz\)</span>, where <span class="math inline">\(\phi(z)\)</span> is the density of the standard normal distribution and <span class="math inline">\(h(z) = \log(f(z)\phi(z))\)</span>. Suppose that <span class="math inline">\(h(z)\)</span> has a single maximum <span class="math inline">\(\hat{z}\)</span>, such that <span class="math inline">\(h'(\hat{z}) = 0\)</span> and <span class="math inline">\(h''(\hat{z}) &lt; 0\)</span>. Then, one can use the following second-order Taylor approximation <span class="math display">\[
+\begin{aligned}
+h(z) &amp;\approx h(\hat{z}) + (z - \hat{z})h'(\hat{z}) + \frac{1}{2}(z - \hat{z})^2 h''(\hat{z}) \\
+&amp;= h(\hat{z}) + \frac{1}{2}(z - \hat{z})^2 h''(\hat{z}).
+\end{aligned}
+\]</span> Accordingly, we can define <span class="math display">\[
+\begin{aligned}
+\int f(z)\phi(z)dz &amp;= e^{h(z)} dz \\
+&amp;\approx e^{h(\hat{z}) + \frac{1}{2}(z - \hat{z})^2 h''(\hat{z})} dz \\
+&amp;= f(\hat{z}) \phi(\hat{z}) \sqrt{2\pi}(-h''(\hat{z}))^{ -\frac{1}{2}}.
+\end{aligned}
+\]</span> In our case, we have <span class="math display">\[
+I = \int^\infty_{-\infty} \frac{e^x}{(1+e^x)^2} \cdot
+\frac{1}{\sqrt{2\pi}}e^{-\frac{1}{2}x^2} dx,
+\]</span> and thus <span class="math inline">\(h(x)\)</span> is defined as <span class="math display">\[
+\begin{aligned}
+h(x) &amp;= \log(f(x) \phi(x)) \\
+&amp;= x - 2\log(1+e^x) - \log(\sqrt{2\pi}) - \frac{1}{2}x^2,
+\end{aligned}
+\]</span> where <span class="math inline">\(\phi(x)\)</span> denotes the standard normal distribution. Accordingly, we have first- and second-order derivative <span class="math display">\[
+\begin{aligned}
+h'(x) &amp;= 1 - \frac{2e^x}{1+e^x} - x, \\
+h''(x) &amp;= - 2\frac{e^x}{(1+e^x)^2} - 1,
+\end{aligned}
+\]</span> Setting the first derivative equal to zero and solving for <span class="math inline">\(x\)</span> yields <span class="math display">\[
+\begin{aligned}
+h'(x) &amp;= 1 - 2\frac{e^x}{1+e^x} - x \\
+\implies 1 &amp;= 2\frac{e^x}{1+e^x} - x \\
+x &amp;= \frac{1-e^x}{1+e^x} \\
+x &amp;= 0.
+\end{aligned}
+\]</span> Subsequently, we can fill in the blanks and evaluate <span class="math inline">\(f(\hat{z}) \phi(\hat{z}) \sqrt{2\pi}(-h''(\hat{z}))^{ -\frac{1}{2}}\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+f(\hat{z}) \phi(\hat{z}) \sqrt{2\pi}(-h''(\hat{z}))^{ -\frac{1}{2}} &amp;= f(0)\phi(0) \sqrt{2\pi}(-h''(0))^{-\frac{1}{2}} \\
+&amp;= \frac{e^0}{(1+e^0)^2} \frac{1}{\sqrt{2\pi}}e^0 \\
+&amp;= 0.2041241
+\end{aligned}
+\]</span> In <code>R</code>, this gives is done as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>fx <span class="ot">&lt;-</span> <span class="cf">function</span>(x) (<span class="fu">exp</span>(x))<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span><span class="fu">exp</span>(x))<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">dnorm</span>(x, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>fffx <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="sc">-</span>(<span class="dv">2</span><span class="sc">*</span><span class="fu">exp</span>(x)<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span><span class="fu">exp</span>(x))<span class="sc">^</span><span class="dv">2</span>) <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>laplace <span class="ot">&lt;-</span> <span class="fu">fx</span>(<span class="dv">0</span>) <span class="sc">*</span> <span class="fu">sqrt</span>(<span class="dv">2</span><span class="sc">*</span>pi) <span class="sc">*</span> (<span class="sc">-</span><span class="fu">fffx</span>(<span class="dv">0</span>))<span class="sc">^</span>{<span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>b. Use a Riemannian approximation (with 2, 3 and 4 nodes).</strong></p>
+<p><em>Solution</em></p>
+<p>The Riemannian approximation yields that <span class="math inline">\(g(z)\)</span> is approximated by dividing the parameter space into several regions, and summing the areas of each region. This yields that <span class="math inline">\(g(z)\)</span> is approximated in each interval by a constant function (usually <span class="math inline">\(g(z_q)\)</span>), such that <span class="math inline">\(\int g(z) dz \approx h \sum^Q_{q=1} g(z_q)\)</span> with weights <span class="math inline">\(w_q = h\)</span> for all <span class="math inline">\(q\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>riemann <span class="ot">&lt;-</span> <span class="cf">function</span>(n, a, b) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  h <span class="ot">&lt;-</span> (b<span class="sc">-</span>a)<span class="sc">/</span>n</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">&lt;-</span> <span class="fu">seq</span>(a, b, h)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  zq <span class="ot">&lt;-</span> <span class="fu">fx</span>(z)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  h<span class="sc">*</span><span class="fu">sum</span>(zq)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>(riemann2 <span class="ot">&lt;-</span> <span class="fu">riemann</span>(<span class="dv">2</span>, <span class="sc">-</span><span class="dv">4</span>, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.3989612</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>(riemann3 <span class="ot">&lt;-</span> <span class="fu">riemann</span>(<span class="dv">3</span>, <span class="sc">-</span><span class="dv">4</span>, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1444211</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>(riemann4 <span class="ot">&lt;-</span> <span class="fu">riemann</span>(<span class="dv">4</span>, <span class="sc">-</span><span class="dv">4</span>, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.2221554</code></pre>
+</div>
+</div>
+<p><strong>c.&nbsp;Use a trapezoidal approximation (with 2, 3, and 4 nodes).</strong></p>
+<p><em>Solution</em></p>
+<p>The trapezoidal approximation is very closely related to Riemannian approximation, but with a slightly different different sum.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>trapezoidal <span class="ot">&lt;-</span> <span class="cf">function</span>(n, a, b) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  h <span class="ot">&lt;-</span> (b <span class="sc">-</span> a)<span class="sc">/</span>n</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">&lt;-</span> <span class="fu">seq</span>(a, b, h)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  zq <span class="ot">&lt;-</span> <span class="fu">fx</span>(z)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  h<span class="sc">/</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">fx</span>(a) <span class="sc">+</span> h <span class="sc">*</span> <span class="fu">sum</span>(zq[<span class="sc">-</span><span class="dv">1</span>]) <span class="sc">+</span> h<span class="sc">/</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">fx</span>(b)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>(trap2 <span class="ot">&lt;-</span> <span class="fu">trapezoidal</span>(<span class="dv">2</span>, <span class="sc">-</span><span class="dv">4</span>, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.3989612</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>(trap3 <span class="ot">&lt;-</span> <span class="fu">trapezoidal</span>(<span class="dv">3</span>, <span class="sc">-</span><span class="dv">4</span>, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1444211</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>(trap4 <span class="ot">&lt;-</span> <span class="fu">trapezoidal</span>(<span class="dv">4</span>, <span class="sc">-</span><span class="dv">4</span>, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.2221554</code></pre>
+</div>
+</div>
+<p><strong>d.&nbsp;Use Gauss-Hermite quadrature (with 2, 3, and 4 nodes), with the following nodes and weights.</strong></p>
+<p><strong>2 nodes</strong></p>
+<ul>
+<li>Nodes: -1.0; 1.0</li>
+<li>Weights: 0.5; 0.5</li>
+</ul>
+<p><strong>3 nodes</strong></p>
+<ul>
+<li>Nodes: −1.732051; 0; 1.732051</li>
+<li>Weights: 0.1666667; 0.666667; 0.1666667</li>
+</ul>
+<p><strong>4 nodes</strong></p>
+<ul>
+<li>Nodes: -2.3344142; -0.741938; 0.7419638; 2.3344142</li>
+<li>Weights: 0.04587585; 0.45412415; 0.4512415; 0.04587585</li>
+</ul>
+<p><em>Solution</em></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>n2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>w2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.5</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>n3 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.732051</span>, <span class="dv">0</span>, <span class="fl">1.732051</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>w3 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.1666667</span>, <span class="fl">0.666667</span>, <span class="fl">0.1666667</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>n4 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">2.3344142</span>, <span class="sc">-</span><span class="fl">0.741938</span>, <span class="fl">0.7419638</span>, <span class="fl">2.3344142</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>w4 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.04587585</span>, <span class="fl">0.45412415</span>, <span class="fl">0.4512415</span>, <span class="fl">0.04587585</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>gauss <span class="ot">&lt;-</span> <span class="cf">function</span>(n, w) {</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(n) <span class="sc">!=</span> <span class="fu">length</span>(w)) <span class="fu">stop</span>(<span class="st">"n and w must have the same length!"</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(w <span class="sc">*</span> <span class="fu">exp</span>(n)<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span><span class="fu">exp</span>(n))<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>(gauss2 <span class="ot">&lt;-</span> <span class="fu">gauss</span>(n2, w2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1966119</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>(gauss3 <span class="ot">&lt;-</span> <span class="fu">gauss</span>(n3, w3))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.2092427</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>(gauss4 <span class="ot">&lt;-</span> <span class="fu">gauss</span>(n4, w4))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.205229</code></pre>
+</div>
+</div>
+<p>Putting everything together, we have:</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:right;"> Riemannian </th>
+   <th style="text-align:right;"> Trapezoidal </th>
+   <th style="text-align:right;"> Gaussian.Quadrature </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0.3989612 </td>
+   <td style="text-align:right;"> 0.3989612 </td>
+   <td style="text-align:right;"> 0.1966119 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.1444211 </td>
+   <td style="text-align:right;"> 0.1444211 </td>
+   <td style="text-align:right;"> 0.2092427 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.2221554 </td>
+   <td style="text-align:right;"> 0.2221554 </td>
+   <td style="text-align:right;"> 0.2052290 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<p>It is clear that Gaussian quadrature is the most accurate method.</p>
+<p><strong>2. The Laplace distribution has as pdf <span class="math inline">\(f(x) = \frac{1}{2}e^{-|x|}\)</span>. Consider the integral <span class="math inline">\(I = \int \frac{1}{2}e^{-|x|}dx\)</span>.</strong></p>
+<p><strong>a. Approximate the integral <span class="math inline">\(I\)</span> with a 4-point Riemannian approximation between -2 and 2.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>laplace <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="fu">abs</span>(x))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s first rely on R’s best guess for this interval, by using <code>integrate()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">integrate</span>(laplace, <span class="sc">-</span><span class="cn">Inf</span>, <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1 with absolute error &lt; 5.7e-05</code></pre>
+</div>
+</div>
+<p>It is a proper density function, and should thus integrate to <span class="math inline">\(1\)</span>. Now, let’s see how approximating it with a Riemannian approximation works.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>riemann <span class="ot">&lt;-</span> <span class="cf">function</span>(n, a, b) {</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  h <span class="ot">&lt;-</span> (b <span class="sc">-</span> a)<span class="sc">/</span>n</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">&lt;-</span> <span class="fu">seq</span>(a, b, h)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  zq <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="fu">abs</span>(z))</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  h<span class="sc">*</span><span class="fu">sum</span>(zq)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="fu">riemann</span>(<span class="dv">10000000</span>, <span class="sc">-</span><span class="dv">1000</span>, <span class="dv">1000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+</div>
+<p>Breaking the integration region up in small enough functions, we can get quite close to the true answer. Yet, with only 4 points, we’re not doing a great job.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">integrate</span>(laplace, <span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.8646647 with absolute error &lt; 9.6e-15</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">riemann</span>(<span class="dv">4</span>, <span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.003215</code></pre>
+</div>
+</div>
+<p>That is, we do an okayish job when the aim is to approximate the entire density, but we cut quite some part of the tails, and increasing the number of nodes shows that we indeed miss part of the distribution.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">riemann</span>(<span class="dv">4</span>, <span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.003215</code></pre>
+</div>
+</div>
+<p><strong>b. Approximate the integral <span class="math inline">\(I\)</span> using a <span class="math inline">\(3\)</span>-point Gauss-Hermite approximation. (Hint: You need to rewrite the integral).</strong></p>
+<p>The Gauss-Hermite approximation works by factoring the density of interest into a some density <span class="math inline">\(f(x)\)</span> and a standard normal density <span class="math inline">\(\phi(x)\)</span>, which can be done by multiplying and dividing the Laplace density by a normal density. Hence, we have <span class="math display">\[
+\begin{aligned}
+\int f(x) \phi(x) dx &amp;= \int\frac{1}{2} e^{-|x|} \\
+&amp;= \int \Bigg( \frac{e^{-|x|}}{2} \Bigg/ \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}}\Bigg)
+\cdot \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} \\
+&amp;= \frac{\sqrt{2\pi}}{2} \int e^{\frac{x^2}{2} - |x|} \phi(x),
+\end{aligned}
+\]</span> where <span class="math inline">\(\phi(x)\)</span> again denotes the standard normal distribution. Subsequently, we can use the <code>R</code>-package <code>npmlreg</code> to obtain the nodes and weights for the Gauss-Hermite approximation.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>fx <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">sqrt</span>(<span class="dv">2</span><span class="sc">*</span>pi)<span class="sc">/</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">exp</span>(x<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span><span class="dv">2</span> <span class="sc">-</span> <span class="fu">abs</span>(x))</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> npmlreg<span class="sc">::</span><span class="fu">gqz</span>(<span class="dv">4</span>)<span class="sc">$</span>location</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>w <span class="ot">&lt;-</span> npmlreg<span class="sc">::</span><span class="fu">gqz</span>(<span class="dv">4</span>)<span class="sc">$</span>weight</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>gauss <span class="ot">&lt;-</span> <span class="cf">function</span>(n, w) {</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(w <span class="sc">*</span> <span class="fu">fx</span>(n))</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="fu">gauss</span>(n, w)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.883698</code></pre>
+</div>
+</div>
+<p>Then, showing how well the methods work respectively, we can create a plot for an increasing number of nodes.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(npmlreg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'npmlreg' was built under R version 4.2.2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>perf <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">nodes =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">2000</span>) <span class="sc">|&gt;</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Riemann =</span> <span class="fu">sapply</span>(nodes, riemann, <span class="at">a =</span> <span class="sc">-</span><span class="dv">8</span>, <span class="at">b =</span> <span class="dv">8</span>),</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">Gauss =</span> <span class="fu">sapply</span>(nodes, <span class="cf">function</span>(x) {</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>           n <span class="ot">&lt;-</span> npmlreg<span class="sc">::</span><span class="fu">gqz</span>(x)<span class="sc">$</span>location</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>           w <span class="ot">&lt;-</span> npmlreg<span class="sc">::</span><span class="fu">gqz</span>(x)<span class="sc">$</span>weight</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>           <span class="fu">gauss</span>(n, w)</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>          }))</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>perf <span class="sc">|&gt;</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> nodes)) <span class="sc">+</span></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Riemann), <span class="at">col =</span> <span class="st">"navy"</span>) <span class="sc">+</span></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Gauss), <span class="at">col =</span> <span class="st">"dark green"</span>) <span class="sc">+</span></span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Riemann (blue) / Gaussian (green)"</span>) <span class="sc">+</span></span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_log10</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="chapter10_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>perf <span class="sc">|&gt;</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> nodes, <span class="at">y =</span> <span class="fu">log</span>(<span class="fu">abs</span>(<span class="dv">1</span><span class="sc">-</span>Gauss)<span class="sc">/</span><span class="fu">abs</span>(<span class="dv">1</span><span class="sc">-</span>Riemann)))) <span class="sc">+</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">col =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Log of the relative error"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="chapter10_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Surprisingly, for a sufficient number of nodes, the relative approximation error of the Riemannian approximation is smaller than of the Gauss-Hermite approximation, although the error is small in an absolute sense.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(perf) <span class="sc">|&gt;</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> nodes </th>
+   <th style="text-align:right;"> Riemann </th>
+   <th style="text-align:right;"> Gauss </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> 1994 </td>
+   <td style="text-align:right;"> 1995 </td>
+   <td style="text-align:right;"> 0.9996632 </td>
+   <td style="text-align:right;"> 0.9897202 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 1995 </td>
+   <td style="text-align:right;"> 1996 </td>
+   <td style="text-align:right;"> 0.9996712 </td>
+   <td style="text-align:right;"> 0.9887065 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 1996 </td>
+   <td style="text-align:right;"> 1997 </td>
+   <td style="text-align:right;"> 0.9996632 </td>
+   <td style="text-align:right;"> 0.9896955 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 1997 </td>
+   <td style="text-align:right;"> 1998 </td>
+   <td style="text-align:right;"> 0.9996712 </td>
+   <td style="text-align:right;"> 0.9886816 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 1998 </td>
+   <td style="text-align:right;"> 1999 </td>
+   <td style="text-align:right;"> 0.9996632 </td>
+   <td style="text-align:right;"> 0.9896707 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 1999 </td>
+   <td style="text-align:right;"> 2000 </td>
+   <td style="text-align:right;"> 0.9996712 </td>
+   <td style="text-align:right;"> 0.9886568 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./chapter9.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Maximum Likelihood Estimation and Inference</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./chapter11.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Expectation-Maximization algorithm</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>
